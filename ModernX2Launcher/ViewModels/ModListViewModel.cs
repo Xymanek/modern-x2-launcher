@@ -10,12 +10,21 @@ public class ModListViewModel : ViewModelBase
         {
             IsEnabled = false,
             Title = "LWTOC",
+            Category = "Gameplay",
         });
 
         Mods.Add(new ModViewModel
         {
             IsEnabled = true,
             Title = "CI",
+            Category = "Gameplay",
+        });
+        
+        Mods.Add(new ModViewModel
+        {
+            IsEnabled = true,
+            Title = "The most unique voicepack on workshop",
+            Category = "Voicepacks",
         });
     }
 

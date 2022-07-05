@@ -37,8 +37,9 @@
         <!-- The main data grid -->
         <DataGrid Items="{Binding Mods}" AutoGenerateColumns="False">
             <DataGrid.Columns>
-                <DataGridCheckBoxColumn Header="Enabled" Binding="{Binding IsEnabled}" />
+                <DataGridCheckBoxColumn Header="" Binding="{Binding IsEnabled}" MinWidth="25" />
                 <DataGridTextColumn Header="Title" Binding="{Binding Title}" />
+                <DataGridTextColumn Header="Category" Binding="{Binding Category}" />
             </DataGrid.Columns>
         </DataGrid>
     </DockPanel>
