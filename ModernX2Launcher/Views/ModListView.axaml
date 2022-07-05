@@ -11,9 +11,30 @@
     </Design.DataContext>
 
     <DockPanel LastChildFill="True">
-        <TextBlock Text="Hi"
-                   HorizontalAlignment="Center" DockPanel.Dock="Top" />
-
+        
+        <!-- Grouping options -->
+        <DockPanel DockPanel.Dock="Top" LastChildFill="True">
+            <TextBlock Text="Grouping:"
+                       DockPanel.Dock="Left" VerticalAlignment="Center"
+                       Margin="0 0 5 0"/>
+            <WrapPanel>
+                
+                <!-- Not the nicest approach, but good enough for now -->
+                <WrapPanel.Styles>
+                    <Style Selector="Button">
+                        <Setter Property="Margin" Value="3" />
+                    </Style>
+                </WrapPanel.Styles>
+                
+                <Button>Disabled</Button>
+                <Button>Based on sort</Button>
+                <Button>Category</Button>
+                <Button>Author</Button>
+                
+            </WrapPanel>
+        </DockPanel>
+        
+        <!-- The main data grid -->
         <DataGrid Items="{Binding Mods}" AutoGenerateColumns="False">
             <DataGrid.Columns>
                 <DataGridCheckBoxColumn Header="Enabled" Binding="{Binding IsEnabled}" />
