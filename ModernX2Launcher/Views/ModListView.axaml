@@ -49,6 +49,7 @@
                 <DataGridCheckBoxColumn Header="" Binding="{Binding IsEnabled}" MinWidth="25" CanUserReorder="False" />
                 <DataGridTextColumn Header="Title" Binding="{Binding Title}" />
                 <DataGridTextColumn Header="Category" Binding="{Binding Category}" />
+                <DataGridTextColumn Header="Author" Binding="{Binding Author}" />
             </DataGrid.Columns>
         </DataGrid>
     </DockPanel>
