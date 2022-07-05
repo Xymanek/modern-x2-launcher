@@ -1,0 +1,25 @@
+﻿<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:ModernX2Launcher.ViewModels"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             x:Class="ModernX2Launcher.Views.ModListView">
+
+    <Design.DataContext>
+        <vm:ModListViewModel />
+    </Design.DataContext>
+
+    <DockPanel LastChildFill="True">
+        <TextBlock Text="Hi"
+                   HorizontalAlignment="Center" DockPanel.Dock="Top" />
+
+        <DataGrid Items="{Binding Mods}" AutoGenerateColumns="False">
+            <DataGrid.Columns>
+                <DataGridCheckBoxColumn Header="Enabled" Binding="{Binding IsEnabled}" />
+                <DataGridTextColumn Header="Title" Binding="{Binding Title}" />
+            </DataGrid.Columns>
+        </DataGrid>
+    </DockPanel>
+
+</UserControl>

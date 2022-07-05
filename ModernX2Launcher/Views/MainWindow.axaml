@@ -9,9 +9,14 @@
         Title="ModernX2Launcher">
 
     <Design.DataContext>
-        <vm:MainWindowViewModel/>
+        <vm:MainWindowViewModel />
     </Design.DataContext>
 
-    <TextBlock Text="{Binding Greeting}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+    <DockPanel LastChildFill="True">
+        <TextBlock Text="{Binding Greeting}"
+                   HorizontalAlignment="Center" DockPanel.Dock="Top" />
+
+        <ContentControl Content="{Binding ModList}" />
+    </DockPanel>
 
 </Window>
