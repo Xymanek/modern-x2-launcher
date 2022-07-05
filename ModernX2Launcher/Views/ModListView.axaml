@@ -35,7 +35,7 @@
         </DockPanel>
         
         <!-- The main data grid -->
-        <DataGrid Items="{Binding Mods}" AutoGenerateColumns="False">
+        <DataGrid Items="{Binding ModsGridCollectionView}" AutoGenerateColumns="False">
             <DataGrid.Columns>
                 <DataGridCheckBoxColumn Header="" Binding="{Binding IsEnabled}" MinWidth="25" />
                 <DataGridTextColumn Header="Title" Binding="{Binding Title}" />

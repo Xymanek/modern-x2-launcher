@@ -1,4 +1,5 @@
 ﻿using System.Collections.ObjectModel;
+using Avalonia.Collections;
 
 namespace ModernX2Launcher.ViewModels;
 
@@ -26,7 +27,13 @@ public class ModListViewModel : ViewModelBase
             Title = "The most unique voicepack on workshop",
             Category = "Voicepacks",
         });
+        
+        ModsGridCollectionView = new DataGridCollectionView(Mods);
+        
+        ModsGridCollectionView.GroupDescriptions.Add(new DataGridPathGroupDescription(nameof(ModViewModel.Category)));
     }
 
     public ObservableCollection<ModViewModel> Mods { get; } = new();
+
+    public DataGridCollectionView ModsGridCollectionView { get; }
 }
