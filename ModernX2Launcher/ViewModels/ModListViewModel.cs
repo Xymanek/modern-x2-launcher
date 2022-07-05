@@ -1,10 +1,30 @@
-﻿using System.Collections.ObjectModel;
+﻿using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using Avalonia.Collections;
+using Avalonia.Data.Converters;
 
 namespace ModernX2Launcher.ViewModels;
 
 public class ModListViewModel : ViewModelBase
 {
+    private static readonly DataGridGroupDescription GroupingByCategory =
+        new DataGridPathGroupDescription(nameof(ModEntryViewModel.Category));
+
+    private static readonly IReadOnlyDictionary<string, DataGridGroupDescription> GroupingDescriptionsByProperty =
+        new Dictionary<string, DataGridGroupDescription>
+        {
+            [nameof(ModEntryViewModel.Title)] = GroupingByCategory,
+            [nameof(ModEntryViewModel.Category)] = GroupingByCategory,
+            
+            [nameof(ModEntryViewModel.Author)] = new DataGridPathGroupDescription(nameof(ModEntryViewModel.Author)),
+            
+            [nameof(ModEntryViewModel.IsEnabled)] =
+                new DataGridPathGroupDescription(nameof(ModEntryViewModel.IsEnabled))
+                {
+                    ValueConverter = new FuncValueConverter<bool, string>(b => b ? "Enabled" : "Disabled")
+                },
+        };
+
     public ModListViewModel()
     {
         Mods.Add(new ModEntryViewModel
@@ -30,7 +50,7 @@ public class ModListViewModel : ViewModelBase
             Category = "Voicepacks",
             Author = "Author 3",
         });
-        
+
         Mods.Add(new ModEntryViewModel
         {
             IsEnabled = true,
@@ -42,7 +62,7 @@ public class ModListViewModel : ViewModelBase
         ModsGridCollectionView = new DataGridCollectionView(Mods);
 
         ModsGridCollectionView.GroupDescriptions.Add(
-            new DataGridPathGroupDescription(nameof(ModEntryViewModel.Category))
+            GroupingDescriptionsByProperty[nameof(ModEntryViewModel.IsEnabled)]
         );
     }
 
