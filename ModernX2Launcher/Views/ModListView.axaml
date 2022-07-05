@@ -35,7 +35,9 @@
         </DockPanel>
 
         <!-- The main data grid -->
-        <DataGrid Items="{Binding ModsGridCollectionView}" AutoGenerateColumns="False">
+        <DataGrid Items="{Binding ModsGridCollectionView}" AutoGenerateColumns="False"
+                  IsReadOnly="True" CanUserReorderColumns="True"
+                  CanUserResizeColumns="True" CanUserSortColumns="True">
             <DataGrid.Styles>
                 <Style Selector="DataGridRowGroupHeader">
                     <Setter Property="IsItemCountVisible" Value="True"></Setter>
@@ -43,7 +45,8 @@
             </DataGrid.Styles>
 
             <DataGrid.Columns>
-                <DataGridCheckBoxColumn Header="" Binding="{Binding IsEnabled}" MinWidth="25" />
+                <!-- TODO: Can still drag other columns before this one -->
+                <DataGridCheckBoxColumn Header="" Binding="{Binding IsEnabled}" MinWidth="25" CanUserReorder="False" />
                 <DataGridTextColumn Header="Title" Binding="{Binding Title}" />
                 <DataGridTextColumn Header="Category" Binding="{Binding Category}" />
             </DataGrid.Columns>
