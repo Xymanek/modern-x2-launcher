@@ -45,8 +45,12 @@
             </DataGrid.Styles>
 
             <DataGrid.Columns>
+                <!-- A grouping spacer "column" gets added by Avalonia.Controls.DataGridColumnCollection.EnsureRowGrouping -->
+                <!-- It's all private/internal - will likely need a patch to avalonia itself to disable it -->
+                
                 <!-- TODO: Can still drag other columns before this one -->
                 <DataGridCheckBoxColumn Header="" Binding="{Binding IsEnabled}" MinWidth="25" CanUserReorder="False" />
+                
                 <DataGridTextColumn Header="Title" Binding="{Binding Title}" />
                 <DataGridTextColumn Header="Category" Binding="{Binding Category}" />
                 <DataGridTextColumn Header="Author" Binding="{Binding Author}" />
