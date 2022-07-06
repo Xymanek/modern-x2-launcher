@@ -8,101 +8,51 @@ namespace ModernX2Launcher.ViewModels;
 
 public partial class ModListViewModel
 {
-    private static readonly DataGridGroupDescription GroupingByCategory =
-        new DataGridPathGroupDescription(nameof(ModEntryViewModel.Category));
-
-    private static readonly IReadOnlyDictionary<string, DataGridGroupDescription> GroupingDescriptionsByProperty =
-        new Dictionary<string, DataGridGroupDescription>
-        {
-            [nameof(ModEntryViewModel.Title)] = GroupingByCategory,
-            [nameof(ModEntryViewModel.Category)] = GroupingByCategory,
-
-            [nameof(ModEntryViewModel.Author)] = new DataGridPathGroupDescription(nameof(ModEntryViewModel.Author)),
-
-            [nameof(ModEntryViewModel.IsEnabled)] =
-                new DataGridPathGroupDescription(nameof(ModEntryViewModel.IsEnabled))
-                {
-                    ValueConverter = new FuncValueConverter<bool, string>(b => b ? "Enabled" : "Disabled")
-                },
-        };
-
-    public interface IGroupingStrategy
+    private void RebuildCurrentlyDisplayedMods()
     {
-        ModEntrySorter? GetPrimarySorter();
-
-        bool ShouldSkipSortDescription(DataGridSortDescription sortDescription);
-
-        DataGridGroupDescription? GetGroupDescription();
-    }
-
-    private class DisabledGroupingStrategy : IGroupingStrategy
-    {
-        public ModEntrySorter? GetPrimarySorter() => null;
-
-        public bool ShouldSkipSortDescription(DataGridSortDescription sortDescription) => false;
-
-        public DataGridGroupDescription? GetGroupDescription() => null;
-    }
-
-    private class SortBasedGroupingStrategy : IGroupingStrategy
-    {
-        private readonly DataGridCollectionView _modsCollectionView;
-
-        public SortBasedGroupingStrategy(DataGridCollectionView modsCollectionView)
+        IEnumerable<ModEntrySorter> GetActiveSorters()
         {
-            _modsCollectionView = modsCollectionView;
-        }
+            ModEntrySorter? primarySorter = SelectedGroupingOption.Strategy.GetPrimarySorter();
 
-        /// <remarks>Since grouping derives from sorting, we don't need to manipulate the sorting</remarks>
-        public ModEntrySorter? GetPrimarySorter() => null; // TODO: this needs to handle title -> category
-
-        /// <remarks>Since grouping derives from sorting, we don't need to manipulate the sorting</remarks>
-        public bool ShouldSkipSortDescription(DataGridSortDescription sortDescription) => false;
-
-        public DataGridGroupDescription? GetGroupDescription()
-        {
-            // ReSharper disable once InvertIf
-            if (_modsCollectionView.SortDescriptions.Count > 0)
+            if (primarySorter != null)
             {
-                DataGridSortDescription sortDescription = _modsCollectionView.SortDescriptions[0];
-
-                if (
-                    sortDescription.HasPropertyPath &&
-                    GroupingDescriptionsByProperty.TryGetValue(
-                        sortDescription.PropertyPath,
-                        out DataGridGroupDescription? groupDescription
-                    )
-                )
-                {
-                    return groupDescription;
-                }
+                yield return primarySorter;
             }
 
-            return null;
-        }
-    }
+            // ReSharper disable once ForeachCanBePartlyConvertedToQueryUsingAnotherGetEnumerator
+            foreach (DataGridSortDescription sortDescription in ModsGridCollectionView.SortDescriptions)
+            {
+                if (SelectedGroupingOption.Strategy.ShouldSkipSortDescription(sortDescription)) continue;
 
-    private class FixedPropertyGroupingStrategy : IGroupingStrategy
-    {
-        private readonly string _propertyPath;
-        private readonly ModEntrySorter _sorter;
-
-        public FixedPropertyGroupingStrategy(string propertyPath)
-        {
-            _propertyPath = propertyPath;
-            _sorter = CreateSorterFromSortDescription(DataGridSortDescription.FromPath(_propertyPath));
+                yield return CreateSorterFromSortDescription(sortDescription);
+            }
         }
 
-        public ModEntrySorter GetPrimarySorter() => _sorter;
+        IEnumerable<ModEntryViewModel> newModsSequence = Mods;
 
-        public bool ShouldSkipSortDescription(DataGridSortDescription sortDescription)
-            => sortDescription.HasPropertyPath && sortDescription.PropertyPath == _propertyPath;
-
-        public DataGridGroupDescription? GetGroupDescription()
+        // ReSharper disable once LoopCanBeConvertedToQuery - ugly cuz cannot infer generic args
+        foreach (ModEntrySorter sorter in GetActiveSorters())
         {
-            GroupingDescriptionsByProperty.TryGetValue(_propertyPath, out DataGridGroupDescription? groupDescription);
+            newModsSequence = sorter.Apply(newModsSequence);
+        }
 
-            return groupDescription;
+        using (ModsGridCollectionView.DeferRefresh())
+        {
+            _currentDisplayedMods.Clear();
+            _currentDisplayedMods.AddRange(newModsSequence);
+
+            ModsGridCollectionView.GroupDescriptions.Clear();
+            
+            DataGridGroupDescription? desiredGrouping = SelectedGroupingOption.Strategy.GetGroupDescription();
+            if (desiredGrouping != null) ModsGridCollectionView.GroupDescriptions.Add(desiredGrouping);
+
+            // Force the reset of tracking enumerator and refresh of the data grid
+            // (see Avalonia.Collections.DataGridCollectionView.EnsureCollectionInSync).
+            //
+            // Calling ModsGridCollectionView.Refresh() here would be suboptimal as
+            // that would not reset the tracking enumerator, hence likely causing
+            // a second (unnecessary) refresh of the collection view later.
+            _ = ModsGridCollectionView.IsEmpty;
         }
     }
 
@@ -158,5 +108,123 @@ public partial class ModListViewModel
             sortDescription.Comparer,
             false // DataGridSortDescriptions build the direction into the comparer
         );
+    }
+
+    public interface IGroupingStrategy
+    {
+        ModEntrySorter? GetPrimarySorter();
+
+        bool ShouldSkipSortDescription(DataGridSortDescription sortDescription);
+
+        DataGridGroupDescription? GetGroupDescription();
+    }
+
+    private class DisabledGroupingStrategy : IGroupingStrategy
+    {
+        public ModEntrySorter? GetPrimarySorter() => null;
+
+        public bool ShouldSkipSortDescription(DataGridSortDescription sortDescription) => false;
+
+        public DataGridGroupDescription? GetGroupDescription() => null;
+    }
+
+    private static readonly DataGridGroupDescription GroupingByCategory =
+        new DataGridPathGroupDescription(nameof(ModEntryViewModel.Category));
+
+    private static readonly IReadOnlyDictionary<string, DataGridGroupDescription> GroupingDescriptionsByProperty =
+        new Dictionary<string, DataGridGroupDescription>
+        {
+            [nameof(ModEntryViewModel.Title)] = GroupingByCategory,
+            [nameof(ModEntryViewModel.Category)] = GroupingByCategory,
+
+            [nameof(ModEntryViewModel.Author)] = new DataGridPathGroupDescription(nameof(ModEntryViewModel.Author)),
+
+            [nameof(ModEntryViewModel.IsEnabled)] =
+                new DataGridPathGroupDescription(nameof(ModEntryViewModel.IsEnabled))
+                {
+                    // TODO: This is not really optimal. First, we convert from bool to string, then data grid
+                    // compares strings. A better approach would be fixing the group header row template to
+                    // display custom things
+                    ValueConverter = new FuncValueConverter<bool, string>(b => b ? "Enabled" : "Disabled")
+                },
+        };
+
+    private class SortBasedGroupingStrategy : IGroupingStrategy
+    {
+        private static readonly IReadOnlyDictionary<string, ModEntrySorter> PrependedSortersByProperty
+            = new Dictionary<string, ModEntrySorter>
+            {
+                [nameof(ModEntryViewModel.Title)] = CreateSorter(model => model.Category, false),
+            };
+
+        private readonly DataGridCollectionView _modsCollectionView;
+
+        public SortBasedGroupingStrategy(DataGridCollectionView modsCollectionView)
+        {
+            _modsCollectionView = modsCollectionView;
+        }
+
+        private DataGridSortDescription? GetFirstSortDescription()
+            => _modsCollectionView.SortDescriptions.FirstOrDefault();
+
+        public ModEntrySorter? GetPrimarySorter()
+        {
+            DataGridSortDescription? sortDescription = GetFirstSortDescription();
+
+            if (
+                sortDescription is { HasPropertyPath: true } &&
+                PrependedSortersByProperty.TryGetValue(sortDescription.PropertyPath, out ModEntrySorter? sorter)
+            )
+            {
+                return sorter;
+            }
+
+            return null;
+        }
+
+        /// <remarks>Even if we prepend a different grouping sort, we still need to keep the column intact</remarks>
+        public bool ShouldSkipSortDescription(DataGridSortDescription sortDescription) => false;
+
+        public DataGridGroupDescription? GetGroupDescription()
+        {
+            DataGridSortDescription? sortDescription = GetFirstSortDescription();
+
+            if (
+                sortDescription is { HasPropertyPath: true } &&
+                GroupingDescriptionsByProperty.TryGetValue(
+                    sortDescription.PropertyPath,
+                    out DataGridGroupDescription? groupDescription
+                )
+            )
+            {
+                return groupDescription;
+            }
+
+            return null;
+        }
+    }
+
+    private class FixedPropertyGroupingStrategy : IGroupingStrategy
+    {
+        private readonly string _propertyPath;
+        private readonly ModEntrySorter _sorter;
+
+        public FixedPropertyGroupingStrategy(string propertyPath)
+        {
+            _propertyPath = propertyPath;
+            _sorter = CreateSorterFromSortDescription(DataGridSortDescription.FromPath(_propertyPath));
+        }
+
+        public ModEntrySorter GetPrimarySorter() => _sorter;
+
+        public bool ShouldSkipSortDescription(DataGridSortDescription sortDescription)
+            => sortDescription.HasPropertyPath && sortDescription.PropertyPath == _propertyPath;
+
+        public DataGridGroupDescription? GetGroupDescription()
+        {
+            GroupingDescriptionsByProperty.TryGetValue(_propertyPath, out DataGridGroupDescription? groupDescription);
+
+            return groupDescription;
+        }
     }
 }

@@ -94,54 +94,6 @@ public partial class ModListViewModel : ViewModelBase
         });
     }
 
-    private void RebuildCurrentlyDisplayedMods()
-    {
-        IEnumerable<ModEntrySorter> GetActiveSorters()
-        {
-            ModEntrySorter? primarySorter = SelectedGroupingOption.Strategy.GetPrimarySorter();
-
-            if (primarySorter != null)
-            {
-                yield return primarySorter;
-            }
-
-            // ReSharper disable once ForeachCanBePartlyConvertedToQueryUsingAnotherGetEnumerator
-            foreach (DataGridSortDescription sortDescription in ModsGridCollectionView.SortDescriptions)
-            {
-                if (SelectedGroupingOption.Strategy.ShouldSkipSortDescription(sortDescription)) continue;
-
-                yield return CreateSorterFromSortDescription(sortDescription);
-            }
-        }
-
-        IEnumerable<ModEntryViewModel> newModsSequence = Mods;
-
-        // ReSharper disable once LoopCanBeConvertedToQuery - ugly cuz cannot infer generic args
-        foreach (ModEntrySorter sorter in GetActiveSorters())
-        {
-            newModsSequence = sorter.Apply(newModsSequence);
-        }
-
-        using (ModsGridCollectionView.DeferRefresh())
-        {
-            _currentDisplayedMods.Clear();
-            _currentDisplayedMods.AddRange(newModsSequence);
-
-            ModsGridCollectionView.GroupDescriptions.Clear();
-            
-            DataGridGroupDescription? desiredGrouping = SelectedGroupingOption.Strategy.GetGroupDescription();
-            if (desiredGrouping != null) ModsGridCollectionView.GroupDescriptions.Add(desiredGrouping);
-
-            // Force the reset of tracking enumerator and refresh of the data grid
-            // (see Avalonia.Collections.DataGridCollectionView.EnsureCollectionInSync).
-            //
-            // Calling ModsGridCollectionView.Refresh() here would be suboptimal as
-            // that would not reset the tracking enumerator, hence likely causing
-            // a second (unnecessary) refresh of the collection view later.
-            _ = ModsGridCollectionView.IsEmpty;
-        }
-    }
-
     public ObservableCollection<ModEntryViewModel> Mods { get; } = new();
 
     public DataGridCollectionView ModsGridCollectionView { get; }
