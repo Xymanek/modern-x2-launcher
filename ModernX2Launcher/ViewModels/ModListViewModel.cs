@@ -1,35 +1,32 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Linq;
 using System.Reactive.Linq;
 using Avalonia.Collections;
-using Avalonia.Data.Converters;
 using DynamicData.Binding;
+using ReactiveUI;
 
 namespace ModernX2Launcher.ViewModels;
 
-public class ModListViewModel : ViewModelBase
+public partial class ModListViewModel : ViewModelBase
 {
-    private static readonly DataGridGroupDescription GroupingByCategory =
-        new DataGridPathGroupDescription(nameof(ModEntryViewModel.Category));
-
-    private static readonly IReadOnlyDictionary<string, DataGridGroupDescription> GroupingDescriptionsByProperty =
-        new Dictionary<string, DataGridGroupDescription>
+    public sealed class GroupingOption
+    {
+        public GroupingOption(string label, IGroupingStrategy strategy)
         {
-            [nameof(ModEntryViewModel.Title)] = GroupingByCategory,
-            [nameof(ModEntryViewModel.Category)] = GroupingByCategory,
+            Label = label;
+            Strategy = strategy;
+        }
 
-            [nameof(ModEntryViewModel.Author)] = new DataGridPathGroupDescription(nameof(ModEntryViewModel.Author)),
+        public string Label { get; }
+        public IGroupingStrategy Strategy { get; }
+    };
 
-            [nameof(ModEntryViewModel.IsEnabled)] =
-                new DataGridPathGroupDescription(nameof(ModEntryViewModel.IsEnabled))
-                {
-                    ValueConverter = new FuncValueConverter<bool, string>(b => b ? "Enabled" : "Disabled")
-                },
-        };
-
+    public IReadOnlyList<GroupingOption> GroupingOptions { get; }
+    
     private readonly List<ModEntryViewModel> _currentDisplayedMods = new();
+
+    private GroupingOption _selectedGroupingOption;
 
     public ModListViewModel()
     {
@@ -67,6 +64,18 @@ public class ModListViewModel : ViewModelBase
 
         ModsGridCollectionView = new DataGridCollectionView(_currentDisplayedMods, true, true);
 
+        GroupingOptions = new GroupingOption[]
+        {
+            new("Disabled", new DisabledGroupingStrategy()),
+            new("Based on sort", new SortBasedGroupingStrategy(ModsGridCollectionView)),
+            
+            new("Category", new FixedPropertyGroupingStrategy(nameof(ModEntryViewModel.Category))),
+            new("Author", new FixedPropertyGroupingStrategy(nameof(ModEntryViewModel.Author))),
+        };
+
+        _selectedGroupingOption = GroupingOptions[1];
+        
+        // This depends on _selectedGroupingOption being set
         RebuildCurrentlyDisplayedMods();
 
         Observable
@@ -75,7 +84,7 @@ public class ModListViewModel : ViewModelBase
                 ModsGridCollectionView.SortDescriptions.ObserveCollectionChanges()
             )
             .Subscribe(_ => RebuildCurrentlyDisplayedMods()); // TODO: dispose
-
+        
         Mods.Add(new ModEntryViewModel
         {
             IsEnabled = true,
@@ -89,15 +98,19 @@ public class ModListViewModel : ViewModelBase
     {
         IEnumerable<ModEntrySorter> GetActiveSorters()
         {
-            // TODO: grouping sort
+            ModEntrySorter? primarySorter = SelectedGroupingOption.Strategy.GetPrimarySorter();
 
+            if (primarySorter != null)
+            {
+                yield return primarySorter;
+            }
+
+            // ReSharper disable once ForeachCanBePartlyConvertedToQueryUsingAnotherGetEnumerator
             foreach (DataGridSortDescription sortDescription in ModsGridCollectionView.SortDescriptions)
             {
-                yield return ModEntrySorter.Create(
-                    model => model,
-                    sortDescription.Comparer,
-                    false // DataGridSortDescriptions build the direction into the comparer
-                );
+                if (SelectedGroupingOption.Strategy.ShouldSkipSortDescription(sortDescription)) continue;
+
+                yield return CreateSorterFromSortDescription(sortDescription);
             }
         }
 
@@ -114,23 +127,10 @@ public class ModListViewModel : ViewModelBase
             _currentDisplayedMods.Clear();
             _currentDisplayedMods.AddRange(newModsSequence);
 
-            // Assume grouping by sort for now
             ModsGridCollectionView.GroupDescriptions.Clear();
-            if (ModsGridCollectionView.SortDescriptions.Count > 0)
-            {
-                DataGridSortDescription sortDescription = ModsGridCollectionView.SortDescriptions[0];
-
-                if (
-                    sortDescription.HasPropertyPath &&
-                    GroupingDescriptionsByProperty.TryGetValue(
-                        sortDescription.PropertyPath,
-                        out DataGridGroupDescription? groupDescription
-                    )
-                )
-                {
-                    ModsGridCollectionView.GroupDescriptions.Add(groupDescription);
-                }
-            }
+            
+            DataGridGroupDescription? desiredGrouping = SelectedGroupingOption.Strategy.GetGroupDescription();
+            if (desiredGrouping != null) ModsGridCollectionView.GroupDescriptions.Add(desiredGrouping);
 
             // Force the reset of tracking enumerator and refresh of the data grid
             // (see Avalonia.Collections.DataGridCollectionView.EnsureCollectionInSync).
@@ -142,52 +142,13 @@ public class ModListViewModel : ViewModelBase
         }
     }
 
-    private abstract class ModEntrySorter
-    {
-        public abstract IOrderedEnumerable<ModEntryViewModel> Apply(IEnumerable<ModEntryViewModel> mods);
-
-        public static ModEntrySorter<TKey> Create<TKey>(
-            Func<ModEntryViewModel, TKey> keySelector, bool descending
-        )
-        {
-            return Create(keySelector, null, descending);
-        }
-
-        public static ModEntrySorter<TKey> Create<TKey>(
-            Func<ModEntryViewModel, TKey> keySelector, IComparer<TKey>? comparer, bool descending
-        )
-        {
-            return new ModEntrySorter<TKey>(keySelector, comparer, descending);
-        }
-    }
-
-    private class ModEntrySorter<TKey> : ModEntrySorter
-    {
-        private readonly Func<ModEntryViewModel, TKey> _keySelector;
-        private readonly IComparer<TKey>? _comparer;
-        private readonly bool _descending;
-
-        public ModEntrySorter(Func<ModEntryViewModel, TKey> keySelector, IComparer<TKey>? comparer, bool descending)
-        {
-            _keySelector = keySelector;
-            _comparer = comparer;
-            _descending = descending;
-        }
-
-        public override IOrderedEnumerable<ModEntryViewModel> Apply(IEnumerable<ModEntryViewModel> mods)
-        {
-            if (mods is IOrderedEnumerable<ModEntryViewModel> orderedEnumerable)
-            {
-                return orderedEnumerable.CreateOrderedEnumerable(_keySelector, _comparer, _descending);
-            }
-
-            return _descending
-                ? mods.OrderByDescending(_keySelector, _comparer)
-                : mods.OrderBy(_keySelector, _comparer);
-        }
-    }
-
     public ObservableCollection<ModEntryViewModel> Mods { get; } = new();
 
     public DataGridCollectionView ModsGridCollectionView { get; }
+
+    public GroupingOption SelectedGroupingOption
+    {
+        get => _selectedGroupingOption;
+        set => this.RaiseAndSetIfChanged(ref _selectedGroupingOption, value);
+    }
 }
