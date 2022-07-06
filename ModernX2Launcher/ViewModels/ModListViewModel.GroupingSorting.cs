@@ -134,6 +134,9 @@ public partial class ModListViewModel
     private static readonly IReadOnlyDictionary<string, DataGridGroupDescription> GroupingDescriptionsByProperty =
         new Dictionary<string, DataGridGroupDescription>
         {
+            // TODO: This duplicates stuff in SortBasedGroupingStrategy and doesn't actually solve
+            // "sorting/grouping for some columns is done by proxy value" (e.g. dates).
+            // Should ideally be reworked.
             [nameof(ModEntryViewModel.Title)] = GroupingByCategory,
             [nameof(ModEntryViewModel.Category)] = GroupingByCategory,
 
