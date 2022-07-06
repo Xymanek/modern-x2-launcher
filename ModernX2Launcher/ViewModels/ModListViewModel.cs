@@ -90,7 +90,7 @@ public class ModListViewModel : ViewModelBase
         IEnumerable<ModEntrySorter> GetActiveSorters()
         {
             // TODO: grouping sort
-            
+
             foreach (DataGridSortDescription sortDescription in ModsGridCollectionView.SortDescriptions)
             {
                 yield return ModEntrySorter.Create(
@@ -99,7 +99,7 @@ public class ModListViewModel : ViewModelBase
                     false // DataGridSortDescriptions build the direction into the comparer
                 );
             }
-        };
+        }
 
         IEnumerable<ModEntryViewModel> newModsSequence = Mods;
 
@@ -114,7 +114,23 @@ public class ModListViewModel : ViewModelBase
             _currentDisplayedMods.Clear();
             _currentDisplayedMods.AddRange(newModsSequence);
 
-            // TODO: update groups
+            // Assume grouping by sort for now
+            ModsGridCollectionView.GroupDescriptions.Clear();
+            if (ModsGridCollectionView.SortDescriptions.Count > 0)
+            {
+                DataGridSortDescription sortDescription = ModsGridCollectionView.SortDescriptions[0];
+
+                if (
+                    sortDescription.HasPropertyPath &&
+                    GroupingDescriptionsByProperty.TryGetValue(
+                        sortDescription.PropertyPath,
+                        out DataGridGroupDescription? groupDescription
+                    )
+                )
+                {
+                    ModsGridCollectionView.GroupDescriptions.Add(groupDescription);
+                }
+            }
 
             // Force the reset of tracking enumerator and refresh of the data grid
             // (see Avalonia.Collections.DataGridCollectionView.EnsureCollectionInSync).
@@ -136,7 +152,7 @@ public class ModListViewModel : ViewModelBase
         {
             return Create(keySelector, null, descending);
         }
-        
+
         public static ModEntrySorter<TKey> Create<TKey>(
             Func<ModEntryViewModel, TKey> keySelector, IComparer<TKey>? comparer, bool descending
         )

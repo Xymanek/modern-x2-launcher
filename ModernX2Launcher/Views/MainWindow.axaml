@@ -6,6 +6,7 @@
         mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
         x:Class="ModernX2Launcher.Views.MainWindow"
         Icon="/Assets/avalonia-logo.ico"
+        Width="800" Height="450"
         Title="ModernX2Launcher">
 
     <Design.DataContext>
