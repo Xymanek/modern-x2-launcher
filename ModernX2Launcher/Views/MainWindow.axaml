@@ -13,11 +13,10 @@
         <vm:MainWindowViewModel />
     </Design.DataContext>
 
-    <DockPanel LastChildFill="True" Margin="5">
-        <TextBlock Text="{Binding Greeting}"
-                   HorizontalAlignment="Center" DockPanel.Dock="Top" />
-
-        <ContentControl Content="{Binding ModList}" />
-    </DockPanel>
+    <Grid RowDefinitions="*, 4, *">
+        <ContentControl Content="{Binding ModList}" Grid.Row="0" />
+        <GridSplitter Grid.Row="1" ResizeDirection="Rows" />
+        <ContentControl Content="{Binding ModInfo}" Grid.Row="2" />
+    </Grid>
 
 </Window>

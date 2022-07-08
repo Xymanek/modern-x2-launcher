@@ -4,9 +4,8 @@ namespace ModernX2Launcher.ViewModels
 {
     public class MainWindowViewModel : ViewModelBase
     {
-        public string Greeting => "Welcome to Avalonia!";
-
         private ModListViewModel _modList = new();
+        private ModInfoViewModel _modInfo = new();
 
         public MainWindowViewModel()
         {
@@ -17,6 +16,12 @@ namespace ModernX2Launcher.ViewModels
         {
             get => _modList;
             set => this.RaiseAndSetIfChanged(ref _modList, value);
+        }
+
+        public ModInfoViewModel ModInfo
+        {
+            get => _modInfo;
+            set => this.RaiseAndSetIfChanged(ref _modInfo, value);
         }
     }
 }
