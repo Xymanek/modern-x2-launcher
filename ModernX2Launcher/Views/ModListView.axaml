@@ -24,6 +24,15 @@
                     <Style Selector="Button">
                         <Setter Property="Margin" Value="3" />
                     </Style>
+                    
+                    <!-- Don't appear disabled when currently selected -->
+                    <Style Selector="Button.activeGroupingMode">
+                        <Setter Property="Opacity" Value="1" />
+                    </Style>
+                    
+                    <Style Selector="Button.activeGroupingMode TextBlock">
+                        <Setter Property="FontWeight" Value="Bold" />
+                    </Style>
                 </ItemsControl.Styles>
                 
                 <ItemsControl.ItemsPanel>
@@ -34,7 +43,8 @@
                 
                 <ItemsControl.ItemTemplate>
                     <DataTemplate>
-                        <Button Command="{Binding Selected}">
+                        <Button Command="{Binding Selected}"
+                                Classes.activeGroupingMode="{Binding IsActive^}">
                             <TextBlock Text="{Binding Label}"></TextBlock>
                         </Button>
                     </DataTemplate>    
