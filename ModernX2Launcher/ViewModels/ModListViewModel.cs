@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Reactive;
 using System.Reactive.Linq;
 using Avalonia.Collections;
+using DynamicData;
 using DynamicData.Binding;
 using ReactiveUI;
 
@@ -45,38 +45,6 @@ public partial class ModListViewModel : ViewModelBase
 
     public ModListViewModel()
     {
-        Mods.Add(new ModEntryViewModel
-        {
-            IsEnabled = true,
-            Title = "The most unique voicepack on workshop",
-            Category = "Voicepacks",
-            Author = "Author 3",
-        });
-
-        Mods.Add(new ModEntryViewModel
-        {
-            IsEnabled = false,
-            Title = "LWTOC",
-            Category = "Gameplay",
-            Author = "Author 1",
-        });
-
-        Mods.Add(new ModEntryViewModel
-        {
-            IsEnabled = true,
-            Title = "CI",
-            Category = "Gameplay",
-            Author = "Author 2",
-        });
-
-        Mods.Add(new ModEntryViewModel
-        {
-            IsEnabled = true,
-            Title = "A boring voicepack",
-            Category = "Voicepacks",
-            Author = "Author 3",
-        });
-
         ModsGridCollectionView = new DataGridCollectionView(_currentDisplayedMods, true, true);
         ModsGridCollectionView.SortDescriptions.Add(
             DataGridSortDescription.FromPath(nameof(ModEntryViewModel.Title))
@@ -112,21 +80,16 @@ public partial class ModListViewModel : ViewModelBase
         Observable
             .Merge(
                 activeGrouping.Select(_ => Unit.Default),
-                Mods.ObserveCollectionChanges().Select(_ => Unit.Default),
+                Mods.Connect().Select(_ => Unit.Default),
                 ModsGridCollectionView.SortDescriptions.ObserveCollectionChanges().Select(_ => Unit.Default)
             )
             .Subscribe(_ => RebuildCurrentlyDisplayedMods()); // TODO: dispose
-        
-        Mods.Add(new ModEntryViewModel
-        {
-            IsEnabled = true,
-            Title = "A boring voicepack2",
-            Category = "Voicepacks",
-            Author = "Author 3",
-        });
     }
 
-    public ObservableCollection<ModEntryViewModel> Mods { get; } = new();
+    // ObservableCollection doesn't support batch adding (outside of instantiation)
+    // and I would prefer to not sort the list 1k times when the app initially starts
+    // for *some people*
+    public SourceList<ModEntryViewModel> Mods { get; } = new();
 
     public DataGridCollectionView ModsGridCollectionView { get; }
 
@@ -134,5 +97,55 @@ public partial class ModListViewModel : ViewModelBase
     {
         get => _selectedGroupingOption;
         set => this.RaiseAndSetIfChanged(ref _selectedGroupingOption, value);
+    }
+}
+
+public class DesignTimeModListViewModel : ModListViewModel
+{
+    public DesignTimeModListViewModel()
+    {
+        PopulateDummy(this);
+    }
+
+    public static void PopulateDummy(ModListViewModel viewModel)
+    {
+        viewModel.Mods.AddRange(new []
+        {
+            new ModEntryViewModel
+            {
+                IsEnabled = true,
+                Title = "The most unique voicepack on workshop",
+                Category = "Voicepacks",
+                Author = "Author 3",
+            },
+            new ModEntryViewModel
+            {
+                IsEnabled = false,
+                Title = "LWTOC",
+                Category = "Gameplay",
+                Author = "Author 1",
+            },
+            new ModEntryViewModel
+            {
+                IsEnabled = true,
+                Title = "CI",
+                Category = "Gameplay",
+                Author = "Author 2",
+            },
+            new ModEntryViewModel
+            {
+                IsEnabled = true,
+                Title = "A boring voicepack",
+                Category = "Voicepacks",
+                Author = "Author 3",
+            },
+            new ModEntryViewModel
+            {
+                IsEnabled = true,
+                Title = "A boring voicepack2",
+                Category = "Voicepacks",
+                Author = "Author 3",
+            }
+        });
     }
 }

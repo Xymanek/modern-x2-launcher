@@ -7,7 +7,7 @@
              x:Class="ModernX2Launcher.Views.ModListView">
 
     <Design.DataContext>
-        <vm:ModListViewModel />
+        <vm:DesignTimeModListViewModel />
     </Design.DataContext>
 
     <DockPanel LastChildFill="True">

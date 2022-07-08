@@ -8,6 +8,11 @@ namespace ModernX2Launcher.ViewModels
 
         private ModListViewModel _modList = new();
 
+        public MainWindowViewModel()
+        {
+            DesignTimeModListViewModel.PopulateDummy(_modList);
+        }
+
         public ModListViewModel ModList
         {
             get => _modList;

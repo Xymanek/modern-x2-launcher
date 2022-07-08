@@ -28,7 +28,7 @@ public partial class ModListViewModel
             }
         }
 
-        IEnumerable<ModEntryViewModel> newModsSequence = Mods;
+        IEnumerable<ModEntryViewModel> newModsSequence = Mods.Items;
 
         // ReSharper disable once LoopCanBeConvertedToQuery - ugly cuz cannot infer generic args
         foreach (ModEntrySorter sorter in GetActiveSorters())
