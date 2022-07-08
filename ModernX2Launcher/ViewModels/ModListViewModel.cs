@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Reactive;
 using System.Reactive.Linq;
 using Avalonia.Collections;
 using DynamicData.Binding;
@@ -12,15 +13,29 @@ public partial class ModListViewModel : ViewModelBase
 {
     public sealed class GroupingOption
     {
-        public GroupingOption(string label, IGroupingStrategy strategy)
+        public GroupingOption(
+            string label, IGroupingStrategy strategy,
+            IObservable<GroupingOption> activeOption
+        )
         {
             Label = label;
             Strategy = strategy;
+            
+            IsActive = activeOption.Select(option => option == this);
+
+            Selected = ReactiveCommand.Create(
+                () => this,
+                IsActive.Select(isActive => !isActive)
+            );
         }
 
         public string Label { get; }
         public IGroupingStrategy Strategy { get; }
-    };
+        
+        public ReactiveCommand<Unit, GroupingOption> Selected { get; }
+
+        public IObservable<bool> IsActive { get; }
+    }
 
     public IReadOnlyList<GroupingOption> GroupingOptions { get; }
     
@@ -63,25 +78,42 @@ public partial class ModListViewModel : ViewModelBase
         });
 
         ModsGridCollectionView = new DataGridCollectionView(_currentDisplayedMods, true, true);
+        ModsGridCollectionView.SortDescriptions.Add(
+            DataGridSortDescription.FromPath(nameof(ModEntryViewModel.Title))
+        );
+
+        IObservable<GroupingOption> activeGrouping = this.WhenAnyValue(m => m.SelectedGroupingOption);
 
         GroupingOptions = new GroupingOption[]
         {
-            new("Disabled", new DisabledGroupingStrategy()),
-            new("Based on sort", new SortBasedGroupingStrategy(ModsGridCollectionView)),
+            new("Disabled", new DisabledGroupingStrategy(), activeGrouping),
+            new("Based on sort", new SortBasedGroupingStrategy(ModsGridCollectionView), activeGrouping),
             
-            new("Category", new FixedPropertyGroupingStrategy(nameof(ModEntryViewModel.Category))),
-            new("Author", new FixedPropertyGroupingStrategy(nameof(ModEntryViewModel.Author))),
+            new("Category", new FixedPropertyGroupingStrategy(nameof(ModEntryViewModel.Category)), activeGrouping),
+            new("Author", new FixedPropertyGroupingStrategy(nameof(ModEntryViewModel.Author)), activeGrouping),
         };
 
         _selectedGroupingOption = GroupingOptions[1];
+        
+        // We need to raise a change notification, otherwise activeGrouping is oblivious to the initial value.
+        // The simpler approach is to use the property setter, but then the compiler complains that
+        // _selectedGroupingOption is null when existing constructor.
+        this.RaisePropertyChanged(nameof(SelectedGroupingOption));
+        
+        foreach (GroupingOption groupingOption in GroupingOptions)
+        {
+            groupingOption.Selected
+                .Subscribe(option => SelectedGroupingOption = option); // TODO: dispose
+        }
         
         // This depends on _selectedGroupingOption being set
         RebuildCurrentlyDisplayedMods();
 
         Observable
             .Merge(
-                Mods.ObserveCollectionChanges(),
-                ModsGridCollectionView.SortDescriptions.ObserveCollectionChanges()
+                activeGrouping.Select(_ => Unit.Default),
+                Mods.ObserveCollectionChanges().Select(_ => Unit.Default),
+                ModsGridCollectionView.SortDescriptions.ObserveCollectionChanges().Select(_ => Unit.Default)
             )
             .Subscribe(_ => RebuildCurrentlyDisplayedMods()); // TODO: dispose
         
