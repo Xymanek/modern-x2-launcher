@@ -23,25 +23,25 @@ public partial class ModListViewModel : ViewModelBase, IActivatableViewModel
         {
             Label = label;
             Strategy = strategy;
-            
+
             IsActive = activeOption.Select(option => option == this);
 
             Selected = ReactiveCommand.Create(
-                () => this,
+                () => { },
                 IsActive.Select(isActive => !isActive)
             );
         }
 
         public string Label { get; }
         public IGroupingStrategy Strategy { get; }
-        
-        public ReactiveCommand<Unit, GroupingOption> Selected { get; }
+
+        public ReactiveCommand<Unit, Unit> Selected { get; }
 
         public IObservable<bool> IsActive { get; }
     }
 
     public IReadOnlyList<GroupingOption> GroupingOptions { get; }
-    
+
     private readonly List<ModEntryViewModel> _currentDisplayedMods = new();
 
     private GroupingOption _selectedGroupingOption;
@@ -53,45 +53,51 @@ public partial class ModListViewModel : ViewModelBase, IActivatableViewModel
             DataGridSortDescription.FromPath(nameof(ModEntryViewModel.Title))
         );
 
-        IObservable<GroupingOption> activeGrouping = this.WhenAnyValue(m => m.SelectedGroupingOption);
-
-        GroupingOptions = new GroupingOption[]
+        GroupingOptions = new[]
         {
-            new("Disabled", new DisabledGroupingStrategy(), activeGrouping),
-            new("Based on sort", new SortBasedGroupingStrategy(ModsGridCollectionView), activeGrouping),
-            
-            new("Category", new FixedPropertyGroupingStrategy(nameof(ModEntryViewModel.Category)), activeGrouping),
-            new("Author", new FixedPropertyGroupingStrategy(nameof(ModEntryViewModel.Author)), activeGrouping),
+            SetupGroupingOption("Disabled", new DisabledGroupingStrategy()),
+            SetupGroupingOption("Based on sort", new SortBasedGroupingStrategy(ModsGridCollectionView)),
+
+            SetupGroupingOption("Category", new FixedPropertyGroupingStrategy(nameof(ModEntryViewModel.Category))),
+            SetupGroupingOption("Author", new FixedPropertyGroupingStrategy(nameof(ModEntryViewModel.Author))),
         };
 
         _selectedGroupingOption = GroupingOptions[1];
-        
-        // We need to raise a change notification, otherwise activeGrouping is oblivious to the initial value.
+
+        // We need to raise a change notification, otherwise WhenAnyValue is oblivious to the initial value.
         // The simpler approach is to use the property setter, but then the compiler complains that
         // _selectedGroupingOption is null when existing constructor.
         this.RaisePropertyChanged(nameof(SelectedGroupingOption));
-        
+
         this.WhenActivated(disposable =>
         {
             foreach (GroupingOption groupingOption in GroupingOptions)
             {
                 groupingOption.Selected
-                    .Subscribe(option => SelectedGroupingOption = option)
+                    .Subscribe(_ => SelectedGroupingOption = groupingOption)
                     .DisposeWith(disposable);
             }
-            
-            // This depends on _selectedGroupingOption being set
-            RebuildCurrentlyDisplayedMods();
 
+            // Rebuild the displayed mods when
             Observable
                 .Merge(
-                    activeGrouping.Select(_ => Unit.Default),
+                    // The list of mods changes (this will also cause the initial rebuild)
                     Mods.Connect().Select(_ => Unit.Default),
+
+                    // The active grouping mode is changed 
+                    this.WhenAnyValue(m => m.SelectedGroupingOption).Select(_ => Unit.Default),
+
+                    // The user clicks on a column header to change the sorting
                     ModsGridCollectionView.SortDescriptions.ObserveCollectionChanges().Select(_ => Unit.Default)
                 )
                 .Subscribe(_ => RebuildCurrentlyDisplayedMods())
                 .DisposeWith(disposable);
         });
+    }
+
+    private GroupingOption SetupGroupingOption(string label, IGroupingStrategy strategy)
+    {
+        return new GroupingOption(label, strategy, this.WhenAnyValue(m => m.SelectedGroupingOption));
     }
 
     // ObservableCollection doesn't support batch adding (outside of instantiation)
@@ -117,7 +123,7 @@ public class DesignTimeModListViewModel : ModListViewModel
 
     public static void PopulateDummy(ModListViewModel viewModel)
     {
-        viewModel.Mods.AddRange(new []
+        viewModel.Mods.AddRange(new[]
         {
             new ModEntryViewModel
             {
