@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Reactive;
+using System.Reactive.Disposables;
 using System.Reactive.Linq;
 using Avalonia.Collections;
 using DynamicData;
@@ -9,8 +10,10 @@ using ReactiveUI;
 
 namespace ModernX2Launcher.ViewModels;
 
-public partial class ModListViewModel : ViewModelBase
+public partial class ModListViewModel : ViewModelBase, IActivatableViewModel
 {
+    public ViewModelActivator Activator { get; } = new();
+
     public sealed class GroupingOption
     {
         public GroupingOption(
@@ -68,22 +71,27 @@ public partial class ModListViewModel : ViewModelBase
         // _selectedGroupingOption is null when existing constructor.
         this.RaisePropertyChanged(nameof(SelectedGroupingOption));
         
-        foreach (GroupingOption groupingOption in GroupingOptions)
+        this.WhenActivated(disposable =>
         {
-            groupingOption.Selected
-                .Subscribe(option => SelectedGroupingOption = option); // TODO: dispose
-        }
-        
-        // This depends on _selectedGroupingOption being set
-        RebuildCurrentlyDisplayedMods();
+            foreach (GroupingOption groupingOption in GroupingOptions)
+            {
+                groupingOption.Selected
+                    .Subscribe(option => SelectedGroupingOption = option)
+                    .DisposeWith(disposable);
+            }
+            
+            // This depends on _selectedGroupingOption being set
+            RebuildCurrentlyDisplayedMods();
 
-        Observable
-            .Merge(
-                activeGrouping.Select(_ => Unit.Default),
-                Mods.Connect().Select(_ => Unit.Default),
-                ModsGridCollectionView.SortDescriptions.ObserveCollectionChanges().Select(_ => Unit.Default)
-            )
-            .Subscribe(_ => RebuildCurrentlyDisplayedMods()); // TODO: dispose
+            Observable
+                .Merge(
+                    activeGrouping.Select(_ => Unit.Default),
+                    Mods.Connect().Select(_ => Unit.Default),
+                    ModsGridCollectionView.SortDescriptions.ObserveCollectionChanges().Select(_ => Unit.Default)
+                )
+                .Subscribe(_ => RebuildCurrentlyDisplayedMods())
+                .DisposeWith(disposable);
+        });
     }
 
     // ObservableCollection doesn't support batch adding (outside of instantiation)

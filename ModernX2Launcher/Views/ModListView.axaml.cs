@@ -1,10 +1,12 @@
 ﻿using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Markup.Xaml;
+using Avalonia.ReactiveUI;
+using ModernX2Launcher.ViewModels;
 
 namespace ModernX2Launcher.Views;
 
-public partial class ModListView : UserControl
+public partial class ModListView : ReactiveUserControl<ModListViewModel>
 {
     public ModListView()
     {
