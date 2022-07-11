@@ -18,7 +18,31 @@
         <Rectangle Grid.Column="0" Fill="Blue" Width="200"/>
         <TabControl Grid.Column="1">
             <TabItem Header="Info">
-                Info content
+                <Grid Margin="5"
+                      RowDefinitions="Auto, 5, Auto, 5, *" ColumnDefinitions="Auto, 5, *, 10, Auto, 5, *">
+                    
+                    <!-- Title -->
+                    <TextBlock Grid.Column="0" Grid.Row="0" Text="Title" VerticalAlignment="Center" />
+                    <TextBox Grid.Column="2" Grid.Row="0" IsReadOnly="True"/>
+                    
+                    <!-- Author -->
+                    <TextBlock Grid.Column="4" Grid.Row="0" Text="Author" VerticalAlignment="Center" />
+                    <TextBox Grid.Column="6" Grid.Row="0" IsReadOnly="True"/>
+                    
+                    <!-- Last update -->
+                    <TextBlock Grid.Column="0" Grid.Row="2" Text="Last update" VerticalAlignment="Center" />
+                    <TextBox Grid.Column="2" Grid.Row="2" IsReadOnly="True"/>
+                    
+                    <!-- State -->
+                    <TextBlock Grid.Column="4" Grid.Row="2" Text="Status" VerticalAlignment="Center" />
+                    <TextBox Grid.Column="6" Grid.Row="2" IsReadOnly="True"/>
+                    
+                    <!-- Description -->
+                    <TextBlock Grid.Column="0" Grid.Row="4" Text="Description" Margin="0 5 0 0"/>
+                    <TextBox Grid.Column="2" Grid.Row="4" Grid.ColumnSpan="5"
+                             IsReadOnly="True"/>
+                    
+                </Grid>
             </TabItem>
             
             <TabItem Header="Details">
