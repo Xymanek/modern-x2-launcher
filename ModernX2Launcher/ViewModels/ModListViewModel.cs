@@ -104,6 +104,14 @@ public partial class ModListViewModel : ViewModelBase, IActivatableViewModel
             .Snapshots()
             .Select(mods => mods.Count > 0)
             .ToProperty(this, m => m.IsDataGridContextMenuEnabled);
+
+        SetSelectedModsCategory = ReactiveCommand.Create<string>(newCategory =>
+        {
+            foreach (ModEntryViewModel mod in SelectedMods.Items)
+            {
+                mod.Category = newCategory;
+            }
+        });
     }
 
     private GroupingOption SetupGroupingOption(string label, IGroupingStrategy strategy)
@@ -130,6 +138,8 @@ public partial class ModListViewModel : ViewModelBase, IActivatableViewModel
 
     private readonly ObservableAsPropertyHelper<bool> _isDataGridContextMenuEnabled;
     public bool IsDataGridContextMenuEnabled => _isDataGridContextMenuEnabled.Value;
+
+    public ReactiveCommand<string, Unit> SetSelectedModsCategory { get; }
 }
 
 public class DesignTimeModListViewModel : ModListViewModel

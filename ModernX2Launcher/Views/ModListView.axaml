@@ -17,42 +17,42 @@
             <TextBlock Text="Grouping:"
                        DockPanel.Dock="Left" VerticalAlignment="Center"
                        Margin="0 0 5 0" />
-            
-            <ItemsControl Items="{Binding GroupingOptions}" >
+
+            <ItemsControl Items="{Binding GroupingOptions}">
                 <ItemsControl.Styles>
                     <!-- Not the nicest approach, but good enough for now -->
                     <Style Selector="Button">
                         <Setter Property="Margin" Value="3" />
                     </Style>
-                    
+
                     <!-- Don't appear disabled when currently selected -->
                     <Style Selector="Button.activeGroupingMode">
                         <Setter Property="Opacity" Value="1" />
                     </Style>
-                    
+
                     <Style Selector="Button.activeGroupingMode TextBlock">
                         <Setter Property="FontWeight" Value="Bold" />
                     </Style>
                 </ItemsControl.Styles>
-                
+
                 <ItemsControl.ItemsPanel>
                     <ItemsPanelTemplate>
                         <WrapPanel></WrapPanel>
                     </ItemsPanelTemplate>
                 </ItemsControl.ItemsPanel>
-                
+
                 <ItemsControl.ItemTemplate>
                     <DataTemplate>
                         <Button Command="{Binding Selected}"
                                 Classes.activeGroupingMode="{Binding IsActive^}">
                             <TextBlock Text="{Binding Label}"></TextBlock>
                         </Button>
-                    </DataTemplate>    
+                    </DataTemplate>
                 </ItemsControl.ItemTemplate>
             </ItemsControl>
-            
+
         </DockPanel>
-        
+
         <TextBlock DockPanel.Dock="Bottom" Text="{Binding SelectedModsText^}" />
 
         <!-- The main data grid -->
@@ -68,24 +68,28 @@
             <DataGrid.Columns>
                 <!-- A grouping spacer "column" gets added by Avalonia.Controls.DataGridColumnCollection.EnsureRowGrouping -->
                 <!-- It's all private/internal - will likely need a patch to avalonia itself to disable it -->
-                
+
                 <!-- TODO: Can still drag other columns before this one -->
                 <DataGridCheckBoxColumn Header="" Binding="{Binding IsEnabled}" MinWidth="25" CanUserReorder="False" />
-                
+
                 <DataGridTextColumn Header="Title" Binding="{Binding Title}" />
                 <DataGridTextColumn Header="Category" Binding="{Binding Category}" />
                 <DataGridTextColumn Header="Author" Binding="{Binding Author}" />
             </DataGrid.Columns>
-            
+
             <DataGrid.ContextMenu>
                 <ContextMenu ContextMenuOpening="DataGridContextMenu_OnOpening">
-                    <MenuItem Header="Do stuff" IsEnabled="False"/>
-                    <MenuItem Header="Do stuff 2"/>
-                    
+                    <MenuItem Header="Do stuff" IsEnabled="False" />
+                    <MenuItem Header="Do stuff 2" />
+
                     <Separator />
-                    
-                    <MenuItem Header="Do stuff 3">
-                        <MenuItem Header="Do stuff 4"></MenuItem>
+
+                    <MenuItem Header="Move to category">
+                        <MenuItem Header="Gameplay"
+                                  Command="{Binding SetSelectedModsCategory}" CommandParameter="Gameplay" />
+                        
+                        <MenuItem Header="Voicepacks"
+                                  Command="{Binding SetSelectedModsCategory}" CommandParameter="Voicepacks" />
                     </MenuItem>
                 </ContextMenu>
             </DataGrid.ContextMenu>
