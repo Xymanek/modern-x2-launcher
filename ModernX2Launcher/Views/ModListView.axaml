@@ -52,10 +52,12 @@
             </ItemsControl>
             
         </DockPanel>
+        
+        <TextBlock DockPanel.Dock="Bottom" Text="{Binding SelectedModsText^}" />
 
         <!-- The main data grid -->
         <DataGrid Items="{Binding ModsGridCollectionView}" AutoGenerateColumns="False"
-                  IsReadOnly="True" CanUserReorderColumns="True"
+                  IsReadOnly="True" CanUserReorderColumns="True" SelectionChanged="DataGrid_OnSelectionChanged"
                   CanUserResizeColumns="True" CanUserSortColumns="True">
             <DataGrid.Styles>
                 <Style Selector="DataGridRowGroupHeader">
@@ -74,6 +76,16 @@
                 <DataGridTextColumn Header="Category" Binding="{Binding Category}" />
                 <DataGridTextColumn Header="Author" Binding="{Binding Author}" />
             </DataGrid.Columns>
+            
+            <DataGrid.ContextMenu>
+                <ContextMenu>
+                    <MenuItem Header="Do stuff" IsEnabled="False"/>
+                    
+                    <MenuItem Header="Do stuff 2">
+                        <MenuItem Header="Do stuff 3"></MenuItem>
+                    </MenuItem>
+                </ContextMenu>
+            </DataGrid.ContextMenu>
         </DataGrid>
     </DockPanel>
 

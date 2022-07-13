@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Reactive;
 using System.Reactive.Disposables;
 using System.Reactive.Linq;
@@ -93,6 +94,11 @@ public partial class ModListViewModel : ViewModelBase, IActivatableViewModel
                 .Subscribe(_ => RebuildCurrentlyDisplayedMods())
                 .DisposeWith(disposable);
         });
+
+        SelectedModsText = SelectedMods.Connect()
+            .Select(_ => Unit.Default)
+            .Prepend(Unit.Default) // The initial value isn't fired if the list is empty
+            .Select(_ => SelectedMods.Count + ": " + string.Join(", ", SelectedMods.Items.Select(mod => mod.Title)));
     }
 
     private GroupingOption SetupGroupingOption(string label, IGroupingStrategy strategy)
@@ -106,6 +112,10 @@ public partial class ModListViewModel : ViewModelBase, IActivatableViewModel
     public SourceList<ModEntryViewModel> Mods { get; } = new();
 
     public DataGridCollectionView ModsGridCollectionView { get; }
+
+    public SourceList<ModEntryViewModel> SelectedMods { get; } = new();
+    
+    public IObservable<string> SelectedModsText { get; }
 
     public GroupingOption SelectedGroupingOption
     {

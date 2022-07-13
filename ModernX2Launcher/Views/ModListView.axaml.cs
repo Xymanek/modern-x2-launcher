@@ -1,7 +1,9 @@
-﻿using Avalonia;
+﻿using System.Linq;
+using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Markup.Xaml;
 using Avalonia.ReactiveUI;
+using DynamicData;
 using ModernX2Launcher.ViewModels;
 
 namespace ModernX2Launcher.Views;
@@ -16,5 +18,14 @@ public partial class ModListView : ReactiveUserControl<ModListViewModel>
     private void InitializeComponent()
     {
         AvaloniaXamlLoader.Load(this);
+    }
+
+    private void DataGrid_OnSelectionChanged(object? sender, SelectionChangedEventArgs e)
+    {
+        ViewModel?.SelectedMods.Edit(mods =>
+        {
+            mods.AddRange(e.AddedItems.OfType<ModEntryViewModel>());
+            mods.RemoveMany(e.RemovedItems.OfType<ModEntryViewModel>());
+        });
     }
 }
