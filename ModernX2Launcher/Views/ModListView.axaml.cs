@@ -1,4 +1,6 @@
-﻿using System.Linq;
+﻿using System;
+using System.ComponentModel;
+using System.Linq;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Markup.Xaml;
@@ -27,5 +29,13 @@ public partial class ModListView : ReactiveUserControl<ModListViewModel>
             mods.AddRange(e.AddedItems.OfType<ModEntryViewModel>());
             mods.RemoveMany(e.RemovedItems.OfType<ModEntryViewModel>());
         });
+    }
+
+    private void DataGridContextMenu_OnOpening(object? sender, CancelEventArgs e)
+    {
+        if (!ViewModel?.IsDataGridContextMenuEnabled ?? false)
+        {
+            e.Cancel = true;
+        }
     }
 }

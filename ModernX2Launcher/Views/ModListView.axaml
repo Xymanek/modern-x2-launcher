@@ -78,11 +78,14 @@
             </DataGrid.Columns>
             
             <DataGrid.ContextMenu>
-                <ContextMenu>
+                <ContextMenu ContextMenuOpening="DataGridContextMenu_OnOpening">
                     <MenuItem Header="Do stuff" IsEnabled="False"/>
+                    <MenuItem Header="Do stuff 2"/>
                     
-                    <MenuItem Header="Do stuff 2">
-                        <MenuItem Header="Do stuff 3"></MenuItem>
+                    <Separator />
+                    
+                    <MenuItem Header="Do stuff 3">
+                        <MenuItem Header="Do stuff 4"></MenuItem>
                     </MenuItem>
                 </ContextMenu>
             </DataGrid.ContextMenu>

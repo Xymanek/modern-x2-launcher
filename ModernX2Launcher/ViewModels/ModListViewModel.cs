@@ -7,6 +7,7 @@ using System.Reactive.Linq;
 using Avalonia.Collections;
 using DynamicData;
 using DynamicData.Binding;
+using ModernX2Launcher.Utilities;
 using ReactiveUI;
 
 namespace ModernX2Launcher.ViewModels;
@@ -96,9 +97,13 @@ public partial class ModListViewModel : ViewModelBase, IActivatableViewModel
         });
 
         SelectedModsText = SelectedMods.Connect()
-            .Select(_ => Unit.Default)
-            .Prepend(Unit.Default) // The initial value isn't fired if the list is empty
-            .Select(_ => SelectedMods.Count + ": " + string.Join(", ", SelectedMods.Items.Select(mod => mod.Title)));
+            .Snapshots()
+            .Select(mods => mods.Count + ": " + string.Join(", ", mods.Select(mod => mod.Title)));
+
+        _isDataGridContextMenuEnabled = SelectedMods.Connect()
+            .Snapshots()
+            .Select(mods => mods.Count > 0)
+            .ToProperty(this, m => m.IsDataGridContextMenuEnabled);
     }
 
     private GroupingOption SetupGroupingOption(string label, IGroupingStrategy strategy)
@@ -113,15 +118,18 @@ public partial class ModListViewModel : ViewModelBase, IActivatableViewModel
 
     public DataGridCollectionView ModsGridCollectionView { get; }
 
-    public SourceList<ModEntryViewModel> SelectedMods { get; } = new();
-    
-    public IObservable<string> SelectedModsText { get; }
-
     public GroupingOption SelectedGroupingOption
     {
         get => _selectedGroupingOption;
         set => this.RaiseAndSetIfChanged(ref _selectedGroupingOption, value);
     }
+
+    public SourceList<ModEntryViewModel> SelectedMods { get; } = new();
+
+    public IObservable<string> SelectedModsText { get; }
+
+    private readonly ObservableAsPropertyHelper<bool> _isDataGridContextMenuEnabled;
+    public bool IsDataGridContextMenuEnabled => _isDataGridContextMenuEnabled.Value;
 }
 
 public class DesignTimeModListViewModel : ModListViewModel
