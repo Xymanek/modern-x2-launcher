@@ -1,8 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reactive;
+using System.Reactive.Linq;
 using Avalonia.Collections;
 using Avalonia.Data.Converters;
+using DynamicData.Binding;
 
 namespace ModernX2Launcher.ViewModels;
 
@@ -10,24 +13,6 @@ public partial class ModListViewModel
 {
     private void RebuildCurrentlyDisplayedMods()
     {
-        IEnumerable<ModEntrySorter> GetActiveSorters()
-        {
-            ModEntrySorter? primarySorter = SelectedGroupingOption.Strategy.GetPrimarySorter();
-
-            if (primarySorter != null)
-            {
-                yield return primarySorter;
-            }
-
-            // ReSharper disable once ForeachCanBePartlyConvertedToQueryUsingAnotherGetEnumerator
-            foreach (DataGridSortDescription sortDescription in ModsGridCollectionView.SortDescriptions)
-            {
-                if (SelectedGroupingOption.Strategy.ShouldSkipSortDescription(sortDescription)) continue;
-
-                yield return CreateSorterFromSortDescription(sortDescription);
-            }
-        }
-
         IEnumerable<ModEntryViewModel> newModsSequence = Mods.Items;
 
         // ReSharper disable once LoopCanBeConvertedToQuery - ugly cuz cannot infer generic args
@@ -56,9 +41,31 @@ public partial class ModListViewModel
         }
     }
 
+    private IEnumerable<ModEntrySorter> GetActiveSorters()
+    {
+        ModEntrySorter? primarySorter = SelectedGroupingOption.Strategy.GetPrimarySorter();
+
+        if (primarySorter != null)
+        {
+            yield return primarySorter;
+        }
+
+        // ReSharper disable once ForeachCanBePartlyConvertedToQueryUsingAnotherGetEnumerator
+        foreach (DataGridSortDescription sortDescription in ModsGridCollectionView.SortDescriptions)
+        {
+            if (SelectedGroupingOption.Strategy.ShouldSkipSortDescription(sortDescription)) continue;
+
+            yield return CreateSorterFromSortDescription(sortDescription);
+        }
+    }
+
     public abstract class ModEntrySorter
     {
         public abstract IOrderedEnumerable<ModEntryViewModel> Apply(IEnumerable<ModEntryViewModel> mods);
+        
+        // Should be init only but rn that would force passing too many args to CreateSorter, so eh.
+        // This needs a better API in general.
+        public Func<ModEntryViewModel, IObservable<Unit>>? ResortObservableProvider { get; set; }
     }
 
     private class ModEntrySorter<TKey> : ModEntrySorter
@@ -103,11 +110,20 @@ public partial class ModListViewModel
 
     private static ModEntrySorter CreateSorterFromSortDescription(DataGridSortDescription sortDescription)
     {
-        return CreateSorter(
+        ModEntrySorter sorter = CreateSorter(
             model => model,
             sortDescription.Comparer,
             false // DataGridSortDescriptions build the direction into the comparer
         );
+
+        if (sortDescription.HasPropertyPath)
+        {
+            sorter.ResortObservableProvider = model => model
+                .WhenAnyPropertyChanged(sortDescription.PropertyPath)
+                .Select(_ => Unit.Default);
+        }
+        
+        return sorter;
     }
 
     public interface IGroupingStrategy
@@ -157,7 +173,7 @@ public partial class ModListViewModel
         private static readonly IReadOnlyDictionary<string, ModEntrySorter> PrependedSortersByProperty
             = new Dictionary<string, ModEntrySorter>
             {
-                [nameof(ModEntryViewModel.Title)] = CreateSorter(model => model.Category, false),
+                [nameof(ModEntryViewModel.Title)] = CreateSorter(model => model.Category, false), // TODO resort provider
             };
 
         private readonly DataGridCollectionView _modsCollectionView;

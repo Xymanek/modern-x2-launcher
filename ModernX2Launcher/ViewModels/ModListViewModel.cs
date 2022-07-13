@@ -4,6 +4,7 @@ using System.Linq;
 using System.Reactive;
 using System.Reactive.Disposables;
 using System.Reactive.Linq;
+using System.Reactive.Subjects;
 using Avalonia.Collections;
 using DynamicData;
 using DynamicData.Binding;
@@ -92,6 +93,26 @@ public partial class ModListViewModel : ViewModelBase, IActivatableViewModel
                     // The user clicks on a column header to change the sorting
                     ModsGridCollectionView.SortDescriptions.ObserveCollectionChanges().Select(_ => Unit.Default)
                 )
+                .SelectMany(_ =>
+                {
+                    Func<ModEntryViewModel, IObservable<Unit>>[] resortProviders = GetActiveSorters()
+                        .Select(sorter => sorter.ResortObservableProvider)
+                        .WhereNotNull()
+                        .ToArray();
+
+                    // Since we got here, we want the mod list to be rebuilt immediately
+                    // without waiting for some mod entry property to change
+                    ReplaySubject<Unit> replaySubject = new(1);
+                    replaySubject.OnNext(Unit.Default);
+
+                    return Mods.Items
+                        .SelectMany(
+                            _ => resortProviders,
+                            (model, resortProvider) => resortProvider(model)
+                        )
+                        .Prepend(replaySubject);
+                })
+                .Merge()
                 .Subscribe(_ => RebuildCurrentlyDisplayedMods())
                 .DisposeWith(disposable);
         });
