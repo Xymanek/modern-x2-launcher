@@ -31,7 +31,8 @@ public partial class ModListView : ReactiveUserControl<ModListViewModel>
             // changes while not attached to the logical tree (and the selection changes happen before
             // the menu is opened), our updates are lost. Additionally, both triggering the CanExecuteChanged
             // event and the MenuItem::CanExecuteChanged handler are not public, so the only way to force it
-            // to run is via command (and command parameter) change handlers
+            // to run is via command (and command parameter) change handlers.
+            // This will be fixed in avalonia v0.11
             menuItem.AttachedToLogicalTree += (_, _) => menuItem.Command = option.Command;
             menuItem.DetachedFromLogicalTree += (_, _) => menuItem.Command = null;
 
