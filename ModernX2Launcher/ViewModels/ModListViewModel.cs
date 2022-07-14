@@ -121,11 +121,6 @@ public partial class ModListViewModel : ViewModelBase, IActivatableViewModel
             .Snapshots()
             .Select(mods => mods.Count + ": " + string.Join(", ", mods.Select(mod => mod.Title)));
 
-        _isDataGridContextMenuEnabled = SelectedMods.Connect()
-            .Snapshots()
-            .Select(mods => mods.Count > 0)
-            .ToProperty(this, m => m.IsDataGridContextMenuEnabled);
-
         SetSelectedModsCategory = ReactiveCommand.Create<string>(newCategory =>
         {
             foreach (ModEntryViewModel mod in SelectedMods.Items)
@@ -156,9 +151,6 @@ public partial class ModListViewModel : ViewModelBase, IActivatableViewModel
     public SourceList<ModEntryViewModel> SelectedMods { get; } = new();
 
     public IObservable<string> SelectedModsText { get; }
-
-    private readonly ObservableAsPropertyHelper<bool> _isDataGridContextMenuEnabled;
-    public bool IsDataGridContextMenuEnabled => _isDataGridContextMenuEnabled.Value;
 
     public ReactiveCommand<string, Unit> SetSelectedModsCategory { get; }
 }

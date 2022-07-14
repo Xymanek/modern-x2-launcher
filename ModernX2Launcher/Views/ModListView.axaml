@@ -57,8 +57,10 @@
 
         <!-- The main data grid -->
         <DataGrid Items="{Binding ModsGridCollectionView}" AutoGenerateColumns="False"
-                  IsReadOnly="True" CanUserReorderColumns="True" SelectionChanged="DataGrid_OnSelectionChanged"
-                  CanUserResizeColumns="True" CanUserSortColumns="True">
+                  IsReadOnly="True" CanUserReorderColumns="True"
+                  CanUserResizeColumns="True" CanUserSortColumns="True"
+                  LoadingRow="DataGrid_OnLoadingRow"
+                  SelectionChanged="DataGrid_OnSelectionChanged">
             <DataGrid.Styles>
                 <Style Selector="DataGridRowGroupHeader">
                     <Setter Property="IsItemCountVisible" Value="True"></Setter>
@@ -76,23 +78,6 @@
                 <DataGridTextColumn Header="Category" Binding="{Binding Category}" />
                 <DataGridTextColumn Header="Author" Binding="{Binding Author}" />
             </DataGrid.Columns>
-
-            <DataGrid.ContextMenu>
-                <ContextMenu ContextMenuOpening="DataGridContextMenu_OnOpening">
-                    <MenuItem Header="Do stuff" IsEnabled="False" />
-                    <MenuItem Header="Do stuff 2" />
-
-                    <Separator />
-
-                    <MenuItem Header="Move to category">
-                        <MenuItem Header="Gameplay"
-                                  Command="{Binding SetSelectedModsCategory}" CommandParameter="Gameplay" />
-                        
-                        <MenuItem Header="Voicepacks"
-                                  Command="{Binding SetSelectedModsCategory}" CommandParameter="Voicepacks" />
-                    </MenuItem>
-                </ContextMenu>
-            </DataGrid.ContextMenu>
         </DataGrid>
     </DockPanel>
 
