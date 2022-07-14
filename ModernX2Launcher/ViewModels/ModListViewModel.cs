@@ -43,6 +43,32 @@ public partial class ModListViewModel : ViewModelBase, IActivatableViewModel
         public IObservable<bool> IsActive { get; }
     }
 
+    public sealed class SetSelectedModsCategoryOption
+    {
+        public SetSelectedModsCategoryOption(string category, ModListViewModel listViewModel)
+        {
+            Label = category;
+
+            Command = ReactiveCommand.Create(
+                (Unit _) =>
+                {
+                    foreach (ModEntryViewModel mod in listViewModel.SelectedMods.Items)
+                    {
+                        mod.Category = category;
+                    }
+                },
+                listViewModel.SelectedMods.Connect()
+                    .Snapshots()
+                    // TODO: subscribe to mod.Category changes
+                    .Select(selectedMods => selectedMods.Any(mod => mod.Category != category))
+            );
+        }
+
+        public string Label { get; }
+
+        public ReactiveCommand<Unit, Unit> Command { get; }
+    }
+
     public IReadOnlyList<GroupingOption> GroupingOptions { get; }
 
     private readonly List<ModEntryViewModel> _currentDisplayedMods = new();
@@ -121,13 +147,10 @@ public partial class ModListViewModel : ViewModelBase, IActivatableViewModel
             .Snapshots()
             .Select(mods => mods.Count + ": " + string.Join(", ", mods.Select(mod => mod.Title)));
 
-        SetSelectedModsCategory = ReactiveCommand.Create<string>(newCategory =>
-        {
-            foreach (ModEntryViewModel mod in SelectedMods.Items)
-            {
-                mod.Category = newCategory;
-            }
-        });
+        // In future, this will come from the configured options (rather than derived from mods)
+        SetSelectedModsCategoryOptionStream = Mods.Connect()
+            .DistinctValues(modVm => modVm.Category)
+            .Transform(category => new SetSelectedModsCategoryOption(category, this));
     }
 
     private GroupingOption SetupGroupingOption(string label, IGroupingStrategy strategy)
@@ -152,7 +175,7 @@ public partial class ModListViewModel : ViewModelBase, IActivatableViewModel
 
     public IObservable<string> SelectedModsText { get; }
 
-    public ReactiveCommand<string, Unit> SetSelectedModsCategory { get; }
+    public IObservable<IChangeSet<SetSelectedModsCategoryOption>> SetSelectedModsCategoryOptionStream { get; }
 }
 
 public class DesignTimeModListViewModel : ModListViewModel
