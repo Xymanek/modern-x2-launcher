@@ -59,8 +59,12 @@ public partial class ModListViewModel : ViewModelBase, IActivatableViewModel
                 },
                 listViewModel.SelectedMods.Connect()
                     .Snapshots()
-                    // TODO: subscribe to mod.Category changes
-                    .Select(selectedMods => selectedMods.Any(mod => mod.Category != category))
+                    .SelectMany(
+                        selectedMods => selectedMods
+                            .Select(mod => mod.WhenAnyValue(m => m.Category))
+                            .CombineLatest()
+                            .Select(selectedModsCategories => selectedModsCategories.Any(c => c != category))
+                    )
             );
         }
 
