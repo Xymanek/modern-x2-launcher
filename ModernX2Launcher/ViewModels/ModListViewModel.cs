@@ -145,10 +145,6 @@ public partial class ModListViewModel : ViewModelBase
                 .DisposeWith(disposable);
         });
 
-        SelectedModsText = SelectedMods.Connect()
-            .Snapshots()
-            .Select(mods => mods.Count + ": " + string.Join(", ", mods.Select(mod => mod.Title)));
-
         // In future, this will come from the configured options (rather than derived from mods)
         SetSelectedModsCategoryOptionStream = Mods.Connect()
             .DistinctValues(modVm => modVm.Category)
@@ -174,8 +170,6 @@ public partial class ModListViewModel : ViewModelBase
     }
 
     public SourceList<ModEntryViewModel> SelectedMods { get; } = new();
-
-    public IObservable<string> SelectedModsText { get; }
 
     public IObservable<IChangeSet<SetSelectedModsCategoryOption>> SetSelectedModsCategoryOptionStream { get; }
 }

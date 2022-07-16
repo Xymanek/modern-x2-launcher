@@ -53,8 +53,6 @@
 
         </DockPanel>
 
-        <TextBlock DockPanel.Dock="Bottom" Text="{Binding SelectedModsText^}" />
-
         <!-- The main data grid -->
         <DataGrid Items="{Binding ModsGridCollectionView}" AutoGenerateColumns="False"
                   IsReadOnly="True" CanUserReorderColumns="True"
