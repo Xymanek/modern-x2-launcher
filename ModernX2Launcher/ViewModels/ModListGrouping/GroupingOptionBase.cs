@@ -2,8 +2,6 @@
 using System.Reactive;
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
-using Avalonia.Collections;
-using ModernX2Launcher.Utilities.SortStack;
 using ReactiveUI;
 
 namespace ModernX2Launcher.ViewModels.ModListGrouping;
@@ -43,13 +41,12 @@ public abstract class GroupingOptionBase : ViewModelBase
     /// Must emit a value when subscribed to. 
     /// </summary>
     public abstract IObservable<IGroupingStrategy> GroupingStrategy { get; }
-}
 
-public interface IGroupingStrategy
-{
-    IRefreshableSorter<ModEntryViewModel>? GetPrimarySorter();
-    
-    bool ShouldSkipSortDescription(DataGridSortDescription sortDescription);
+    private string _label = "";
 
-    DataGridGroupDescription? GetGroupDescription();
+    public string Label
+    {
+        get => _label;
+        set => this.RaiseAndSetIfChanged(ref _label, value);
+    }
 }
