@@ -10,6 +10,7 @@ Planned improvements over AML:
 * High DPI support
 * Cross platform (support for mac/linux versions of the game)
 * No dependency on steamworks (no hacks required for GOG/EGS players)
+* Popout config editor (with ability to have multiple windows/tabs)
 * Overall cleaner code to improve maintainability and simplify adding new features 
 
 At the moment there are no plans for when (if ever) a usable version will be ready.

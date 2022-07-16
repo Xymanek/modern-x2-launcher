@@ -1,27 +1,61 @@
-﻿using ReactiveUI;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Reactive.Linq;
+using DynamicData;
+using ReactiveUI;
 
-namespace ModernX2Launcher.ViewModels
+namespace ModernX2Launcher.ViewModels;
+
+public class MainWindowViewModel : ViewModelBase
 {
-    public class MainWindowViewModel : ViewModelBase
+    private ModListViewModel _modList = new();
+    private ModInfoViewModel _modInfo = new();
+
+    public MainWindowViewModel()
     {
-        private ModListViewModel _modList = new();
-        private ModInfoViewModel _modInfo = new();
+        DesignTimeModListViewModel.PopulateDummy(_modList);
 
-        public MainWindowViewModel()
-        {
-            DesignTimeModListViewModel.PopulateDummy(_modList);
-        }
+        _modList.SelectedMods.Connect()
+            .Select(changeSet =>
+            {
+                IEnumerable<ModEntryViewModel> GetAllAdded()
+                {
+                    foreach (Change<ModEntryViewModel> change in changeSet)
+                    {
+                        // ReSharper disable once SwitchStatementMissingSomeEnumCasesNoDefault
+                        switch (change.Reason)
+                        {
+                            case ListChangeReason.Add:
+                                yield return change.Item.Current;
+                                break;
 
-        public ModListViewModel ModList
-        {
-            get => _modList;
-            set => this.RaiseAndSetIfChanged(ref _modList, value);
-        }
+                            case ListChangeReason.AddRange:
+                                foreach (ModEntryViewModel modEntry in change.Range)
+                                {
+                                    yield return modEntry;
+                                }
 
-        public ModInfoViewModel ModInfo
-        {
-            get => _modInfo;
-            set => this.RaiseAndSetIfChanged(ref _modInfo, value);
-        }
+                                break;
+                        }
+                    }
+                }
+
+                return GetAllAdded().LastOrDefault();
+            })
+            .WhereNotNull() // Keep last selection
+            .Subscribe(modEntry => ModInfo.ModEntry = modEntry); // TODO: unsub
+    }
+
+    public ModListViewModel ModList
+    {
+        get => _modList;
+        set => this.RaiseAndSetIfChanged(ref _modList, value);
+    }
+
+    public ModInfoViewModel ModInfo
+    {
+        get => _modInfo;
+        set => this.RaiseAndSetIfChanged(ref _modInfo, value);
     }
 }
