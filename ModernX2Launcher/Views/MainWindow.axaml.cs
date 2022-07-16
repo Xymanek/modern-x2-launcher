@@ -1,12 +1,13 @@
 using Avalonia.Controls;
+using Avalonia.ReactiveUI;
+using ModernX2Launcher.ViewModels;
 
-namespace ModernX2Launcher.Views
+namespace ModernX2Launcher.Views;
+
+public partial class MainWindow : ReactiveWindow<MainWindowViewModel>
 {
-    public partial class MainWindow : Window
+    public MainWindow()
     {
-        public MainWindow()
-        {
-            InitializeComponent();
-        }
+        InitializeComponent();
     }
 }

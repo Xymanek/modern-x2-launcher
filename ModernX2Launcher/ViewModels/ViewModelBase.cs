@@ -1,8 +1,8 @@
 ﻿using ReactiveUI;
 
-namespace ModernX2Launcher.ViewModels
+namespace ModernX2Launcher.ViewModels;
+
+public class ViewModelBase : ReactiveObject, IActivatableViewModel
 {
-    public class ViewModelBase : ReactiveObject
-    {
-    }
+    ViewModelActivator IActivatableViewModel.Activator { get; } = new();
 }

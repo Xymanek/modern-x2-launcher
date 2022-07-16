@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reactive.Disposables;
 using System.Reactive.Linq;
 using DynamicData;
 using ReactiveUI;
@@ -16,35 +17,41 @@ public class MainWindowViewModel : ViewModelBase
     {
         DesignTimeModListViewModel.PopulateDummy(_modList);
 
-        _modList.SelectedMods.Connect()
-            .Select(changeSet =>
+        this.WhenActivated(disposables =>
+        {
+            _modList.SelectedMods.Connect()
+                .Select(GetLastSelectedMod)
+                .WhereNotNull() // Keep last selection
+                .Subscribe(modEntry => ModInfo.ModEntry = modEntry)
+                .DisposeWith(disposables);
+        });
+    }
+
+    private static ModEntryViewModel? GetLastSelectedMod(IChangeSet<ModEntryViewModel> changeSet)
+    {
+        IEnumerable<ModEntryViewModel> GetAllAdded()
+        {
+            foreach (Change<ModEntryViewModel> change in changeSet)
             {
-                IEnumerable<ModEntryViewModel> GetAllAdded()
+                // ReSharper disable once SwitchStatementMissingSomeEnumCasesNoDefault
+                switch (change.Reason)
                 {
-                    foreach (Change<ModEntryViewModel> change in changeSet)
-                    {
-                        // ReSharper disable once SwitchStatementMissingSomeEnumCasesNoDefault
-                        switch (change.Reason)
+                    case ListChangeReason.Add:
+                        yield return change.Item.Current;
+                        break;
+
+                    case ListChangeReason.AddRange:
+                        foreach (ModEntryViewModel modEntry in change.Range)
                         {
-                            case ListChangeReason.Add:
-                                yield return change.Item.Current;
-                                break;
-
-                            case ListChangeReason.AddRange:
-                                foreach (ModEntryViewModel modEntry in change.Range)
-                                {
-                                    yield return modEntry;
-                                }
-
-                                break;
+                            yield return modEntry;
                         }
-                    }
-                }
 
-                return GetAllAdded().LastOrDefault();
-            })
-            .WhereNotNull() // Keep last selection
-            .Subscribe(modEntry => ModInfo.ModEntry = modEntry); // TODO: unsub
+                        break;
+                }
+            }
+        }
+
+        return GetAllAdded().LastOrDefault();
     }
 
     public ModListViewModel ModList

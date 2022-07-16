@@ -13,10 +13,8 @@ using ReactiveUI;
 
 namespace ModernX2Launcher.ViewModels;
 
-public partial class ModListViewModel : ViewModelBase, IActivatableViewModel
+public partial class ModListViewModel : ViewModelBase
 {
-    public ViewModelActivator Activator { get; } = new();
-
     public sealed class GroupingOption
     {
         public GroupingOption(
