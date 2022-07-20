@@ -1,9 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reactive;
 using System.Reactive.Disposables;
 using System.Reactive.Linq;
+using System.Threading.Tasks;
 using DynamicData;
+using ModernX2Launcher.ModDiscovery;
 using ReactiveUI;
 
 namespace ModernX2Launcher.ViewModels;
@@ -16,6 +19,8 @@ public class MainWindowViewModel : ViewModelBase
     public MainWindowViewModel()
     {
         DesignTimeModListViewModel.PopulateDummy(_modList);
+
+        TestStuff = ReactiveCommand.CreateFromTask(DoTestStuff);
 
         this.WhenActivated(disposables =>
         {
@@ -64,5 +69,16 @@ public class MainWindowViewModel : ViewModelBase
     {
         get => _modInfo;
         set => this.RaiseAndSetIfChanged(ref _modInfo, value);
+    }
+
+    public ReactiveCommand<Unit, Unit> TestStuff { get; }
+
+    private async Task DoTestStuff()
+    {
+        ModRootCandidateDiscoverer candidateDiscoverer = new();
+
+        IReadOnlyList<ModRootCandidate> candidates = await candidateDiscoverer.DiscoverCandidatesAsync(
+            "C:\\Steam\\steamapps\\common\\XCOM 2\\XCom2-WarOfTheChosen\\XComGame\\Mods"
+        );
     }
 }
