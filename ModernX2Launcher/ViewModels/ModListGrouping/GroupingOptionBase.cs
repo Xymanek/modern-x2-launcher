@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Reactive;
-using System.Reactive.Linq;
 using System.Reactive.Subjects;
 using ReactiveUI;
 
@@ -8,31 +7,18 @@ namespace ModernX2Launcher.ViewModels.ModListGrouping;
 
 public abstract class GroupingOptionBase : ViewModelBase
 {
-    protected readonly IObservable<GroupingOptionBase> ActiveGroupingOption;
-    
     /// <summary>
     /// Publish a value here whenever the user clicks/selects this option. 
     /// </summary>
     protected readonly Subject<Unit> SelectedByUserSubject = new();
 
-    protected GroupingOptionBase(IObservable<GroupingOptionBase> activeGroupingOption)
+    protected GroupingOptionBase()
     {
-        ActiveGroupingOption = activeGroupingOption;
-
-        _isActive = ActiveGroupingOption
-            .Select(activeOption => activeOption == this)
-            .ToProperty(this, vm => vm.IsActive);
-
-        SelectedByUser = SelectedByUserSubject
-            .SkipWhile(_ => IsActive);
+        SelectedByUser = SelectedByUserSubject;
     }
-    
-    private readonly ObservableAsPropertyHelper<bool> _isActive;
-    public bool IsActive => _isActive.Value;
 
     /// <summary>
-    /// Emits a value when the user selects this options, except if this option is active already (e.g. for options
-    /// with multiple states). Will cause this option to become the active one. 
+    /// Emits a value when the user selects this options. Will cause this option to become the active one. 
     /// </summary>
     public IObservable<Unit> SelectedByUser { get; }
 
@@ -42,7 +28,14 @@ public abstract class GroupingOptionBase : ViewModelBase
     /// </summary>
     public abstract IObservable<IGroupingStrategy> GroupingStrategy { get; }
 
+    private bool _isActive;
     private string _label = "";
+
+    public bool IsActive
+    {
+        get => _isActive;
+        set => this.RaiseAndSetIfChanged(ref _isActive, value);
+    }
 
     public string Label
     {
