@@ -62,7 +62,8 @@ public partial class ModListViewModel
     public abstract class ModEntrySorter
     {
         public abstract IOrderedEnumerable<ModEntryViewModel> Apply(IEnumerable<ModEntryViewModel> mods);
-        
+        public abstract IComparer<ModEntryViewModel> AsComparer();
+
         // Should be init only but rn that would force passing too many args to CreateSorter, so eh.
         // This needs a better API in general.
         public Func<ModEntryViewModel, IObservable<Unit>>? ResortObservableProvider { get; set; }
@@ -91,6 +92,20 @@ public partial class ModListViewModel
             return _descending
                 ? mods.OrderByDescending(_keySelector, _comparer)
                 : mods.OrderBy(_keySelector, _comparer);
+        }
+
+        public override IComparer<ModEntryViewModel> AsComparer()
+        {
+            return Comparer<ModEntryViewModel>.Create((x, y) =>
+            {
+                TKey xKey = _keySelector(x);
+                TKey yKey = _keySelector(y);
+
+                int result = (_comparer ?? Comparer<TKey>.Default).Compare(xKey, yKey);
+                if (_descending) result *= -1;
+
+                return result;
+            });
         }
     }
 

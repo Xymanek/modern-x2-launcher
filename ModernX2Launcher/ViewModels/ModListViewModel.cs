@@ -149,6 +149,79 @@ public partial class ModListViewModel : ViewModelBase
         SetSelectedModsCategoryOptionStream = Mods.Connect()
             .DistinctValues(modVm => modVm.Category)
             .Transform(category => new SetSelectedModsCategoryOption(category, this));
+
+        IObservable<IGroupingStrategy> groupingStrategyObs = this.WhenAnyValue(vm => vm.SelectedGroupingOption)
+            .Select(option => option.Strategy);
+        
+        IObservable<IReadOnlyCollection<ModEntrySorter>> sortersObs = groupingStrategyObs
+            .SelectMany(strategy =>
+            {
+                IObservable<IReadOnlyCollection<ModEntrySorter>> sortersObs = ModsGridCollectionView.SortDescriptions
+                    .ToObservableChangeSet()
+                    .Filter(description => !strategy.ShouldSkipSortDescription(description))
+                    .Transform(CreateSorterFromSortDescription)
+                    .QueryWhenChanged();
+
+                ModEntrySorter? primarySorter = strategy.GetPrimarySorter();
+                if (primarySorter != null)
+                {
+                    sortersObs = sortersObs.Select(
+                        s => s.Prepend(primarySorter).ToArray()
+                    );
+                }
+
+                return sortersObs;
+            });
+
+        IObservable<IComparer<ModEntryViewModel>> listComparerObs = sortersObs
+            .Select(sorters => sorters.Select(sorter => sorter.AsComparer()).ToStack());
+
+        IObservable<IChangeSet<ModEntryViewModel>> refreshModPositionObs = Mods.Connect()
+            .MergeMany(mod =>
+            {
+                return sortersObs
+                    .SelectMany(sorters =>
+                    {
+                        return sorters
+                            .Select(sorter => sorter.ResortObservableProvider)
+                            .WhereNotNull()
+                            .Select(resortProvider => resortProvider(mod).Select(_ => mod))
+                            .Merge();
+                    });
+            })
+            .Select(mod =>
+            {
+                Change<ModEntryViewModel> change = new(ListChangeReason.Refresh, mod);
+                return new ChangeSet<ModEntryViewModel>(new[] { change });
+            });
+
+        Mods.Connect()
+            .Merge(refreshModPositionObs)
+            .Sort(listComparerObs)
+            .Snapshots()
+            .CombineLatest(groupingStrategyObs.Select(strategy => strategy.GetGroupDescription()))
+            // TODO: How to not fire twice on grouping change? (comparer + description changes)
+            .Subscribe(tuple =>
+            {
+                (IReadOnlyCollection<ModEntryViewModel> mods, DataGridGroupDescription? groupDescription) = tuple;
+
+                using (ModsGridCollectionView.DeferRefresh())
+                {
+                    _currentDisplayedMods.Clear();
+                    _currentDisplayedMods.AddRange(mods);
+
+                    ModsGridCollectionView.GroupDescriptions.Clear();
+                    if (groupDescription != null) ModsGridCollectionView.GroupDescriptions.Add(groupDescription);
+
+                    // Force the reset of tracking enumerator and refresh of the data grid
+                    // (see Avalonia.Collections.DataGridCollectionView.EnsureCollectionInSync).
+                    //
+                    // Calling ModsGridCollectionView.Refresh() here would be suboptimal as
+                    // that would not reset the tracking enumerator, hence likely causing
+                    // a second (unnecessary) refresh of the collection view later.
+                    _ = ModsGridCollectionView.IsEmpty;
+                }
+            });
     }
 
     private GroupingOption SetupGroupingOption(string label, IGroupingStrategy strategy)

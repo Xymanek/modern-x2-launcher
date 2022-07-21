@@ -1,8 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Reactive.Linq;
+using Avalonia.Collections;
 using DynamicData;
+using DynamicData.Binding;
 
 namespace ModernX2Launcher.Utilities;
 
@@ -17,5 +18,10 @@ public static class DynamicDataExtensions
         return source
             .QueryWhenChanged()
             .Prepend(Array.Empty<T>());
+    }
+
+    public static IObservable<IChangeSet<TItem>> ToObservableChangeSet<TItem>(this AvaloniaList<TItem> collection)
+    {
+        return collection.ToObservableChangeSet<AvaloniaList<TItem>, TItem>();
     }
 }
