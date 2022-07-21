@@ -109,40 +109,7 @@ public partial class ModListViewModel : ViewModelBase
                     .DisposeWith(disposable);
             }
 
-            // Rebuild the displayed mods when
-            Observable
-                .Merge(
-                    // The list of mods changes (this will also cause the initial rebuild)
-                    Mods.Connect().Select(_ => Unit.Default),
-
-                    // The active grouping mode is changed 
-                    this.WhenAnyValue(m => m.SelectedGroupingOption).Select(_ => Unit.Default),
-
-                    // The user clicks on a column header to change the sorting
-                    ModsGridCollectionView.SortDescriptions.ObserveCollectionChanges().Select(_ => Unit.Default)
-                )
-                .SelectMany(_ =>
-                {
-                    Func<ModEntryViewModel, IObservable<Unit>>[] resortProviders = GetActiveSorters()
-                        .Select(sorter => sorter.ResortObservableProvider)
-                        .WhereNotNull()
-                        .ToArray();
-
-                    // Since we got here, we want the mod list to be rebuilt immediately
-                    // without waiting for some mod entry property to change
-                    ReplaySubject<Unit> replaySubject = new(1);
-                    replaySubject.OnNext(Unit.Default);
-
-                    return Mods.Items
-                        .SelectMany(
-                            _ => resortProviders,
-                            (model, resortProvider) => resortProvider(model)
-                        )
-                        .Prepend(replaySubject);
-                })
-                .Merge()
-                .Subscribe(_ => RebuildCurrentlyDisplayedMods())
-                .DisposeWith(disposable);
+            SetupDisplayedMods().DisposeWith(disposable);
         });
 
         // In future, this will come from the configured options (rather than derived from mods)
@@ -150,34 +117,52 @@ public partial class ModListViewModel : ViewModelBase
             .DistinctValues(modVm => modVm.Category)
             .Transform(category => new SetSelectedModsCategoryOption(category, this));
 
+        SetupDisplayedMods();
+    }
+
+    private GroupingOption SetupGroupingOption(string label, IGroupingStrategy strategy)
+    {
+        return new GroupingOption(label, strategy, this.WhenAnyValue(m => m.SelectedGroupingOption));
+    }
+
+    private IDisposable SetupDisplayedMods()
+    {
         IObservable<IGroupingStrategy> groupingStrategyObs = this.WhenAnyValue(vm => vm.SelectedGroupingOption)
             .Select(option => option.Strategy);
-        
+
         IObservable<IReadOnlyCollection<ModEntrySorter>> sortersObs = groupingStrategyObs
             .SelectMany(strategy =>
             {
                 IObservable<IReadOnlyCollection<ModEntrySorter>> sortersObs = ModsGridCollectionView.SortDescriptions
                     .ToObservableChangeSet()
-                    .Filter(description => !strategy.ShouldSkipSortDescription(description))
+                    .FilterOnObservable(
+                        sortDescription => strategy
+                            .ShouldSkipSortDescription(sortDescription)
+                            .Select(b => !b)
+                    )
                     .Transform(CreateSorterFromSortDescription)
-                    .QueryWhenChanged();
+                    .QueryWhenChanged() // Not Snapshots because we don't want to sort by nothing
+                    .CombineLatest(strategy.GetPrimarySorter())
+                    .Select(tuple =>
+                    {
+                        (IReadOnlyCollection<ModEntrySorter> sorters, ModEntrySorter? primarySorter) = tuple;
 
-                ModEntrySorter? primarySorter = strategy.GetPrimarySorter();
-                if (primarySorter != null)
-                {
-                    sortersObs = sortersObs.Select(
-                        s => s.Prepend(primarySorter).ToArray()
-                    );
-                }
+                        if (primarySorter != null)
+                        {
+                            sorters = sorters.Prepend(primarySorter).ToArray();
+                        }
 
+                        return sorters;
+                    });
+                
                 return sortersObs;
             });
 
         IObservable<IComparer<ModEntryViewModel>> listComparerObs = sortersObs
             .Select(sorters => sorters.Select(sorter => sorter.AsComparer()).ToStack());
 
-        IObservable<IChangeSet<ModEntryViewModel>> refreshModPositionObs = Mods.Connect()
-            .MergeMany(mod =>
+        return Mods.Connect()
+            .AutoRefreshOnObservable(mod =>
             {
                 return sortersObs
                     .SelectMany(sorters =>
@@ -189,17 +174,10 @@ public partial class ModListViewModel : ViewModelBase
                             .Merge();
                     });
             })
-            .Select(mod =>
-            {
-                Change<ModEntryViewModel> change = new(ListChangeReason.Refresh, mod);
-                return new ChangeSet<ModEntryViewModel>(new[] { change });
-            });
-
-        Mods.Connect()
-            .Merge(refreshModPositionObs)
             .Sort(listComparerObs)
+            .SuppressRefresh()
             .Snapshots()
-            .CombineLatest(groupingStrategyObs.Select(strategy => strategy.GetGroupDescription()))
+            .CombineLatest(groupingStrategyObs.SelectMany(strategy => strategy.GetGroupDescription()))
             // TODO: How to not fire twice on grouping change? (comparer + description changes)
             .Subscribe(tuple =>
             {
@@ -222,11 +200,6 @@ public partial class ModListViewModel : ViewModelBase
                     _ = ModsGridCollectionView.IsEmpty;
                 }
             });
-    }
-
-    private GroupingOption SetupGroupingOption(string label, IGroupingStrategy strategy)
-    {
-        return new GroupingOption(label, strategy, this.WhenAnyValue(m => m.SelectedGroupingOption));
     }
 
     // ObservableCollection doesn't support batch adding (outside of instantiation)

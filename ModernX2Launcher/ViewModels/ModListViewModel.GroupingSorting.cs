@@ -6,59 +6,12 @@ using System.Reactive.Linq;
 using Avalonia.Collections;
 using Avalonia.Data.Converters;
 using DynamicData.Binding;
+using ModernX2Launcher.Utilities;
 
 namespace ModernX2Launcher.ViewModels;
 
 public partial class ModListViewModel
 {
-    private void RebuildCurrentlyDisplayedMods()
-    {
-        IEnumerable<ModEntryViewModel> newModsSequence = Mods.Items;
-
-        // ReSharper disable once LoopCanBeConvertedToQuery - ugly cuz cannot infer generic args
-        foreach (ModEntrySorter sorter in GetActiveSorters())
-        {
-            newModsSequence = sorter.Apply(newModsSequence);
-        }
-
-        using (ModsGridCollectionView.DeferRefresh())
-        {
-            _currentDisplayedMods.Clear();
-            _currentDisplayedMods.AddRange(newModsSequence);
-
-            ModsGridCollectionView.GroupDescriptions.Clear();
-            
-            DataGridGroupDescription? desiredGrouping = SelectedGroupingOption.Strategy.GetGroupDescription();
-            if (desiredGrouping != null) ModsGridCollectionView.GroupDescriptions.Add(desiredGrouping);
-
-            // Force the reset of tracking enumerator and refresh of the data grid
-            // (see Avalonia.Collections.DataGridCollectionView.EnsureCollectionInSync).
-            //
-            // Calling ModsGridCollectionView.Refresh() here would be suboptimal as
-            // that would not reset the tracking enumerator, hence likely causing
-            // a second (unnecessary) refresh of the collection view later.
-            _ = ModsGridCollectionView.IsEmpty;
-        }
-    }
-
-    private IEnumerable<ModEntrySorter> GetActiveSorters()
-    {
-        ModEntrySorter? primarySorter = SelectedGroupingOption.Strategy.GetPrimarySorter();
-
-        if (primarySorter != null)
-        {
-            yield return primarySorter;
-        }
-
-        // ReSharper disable once ForeachCanBePartlyConvertedToQueryUsingAnotherGetEnumerator
-        foreach (DataGridSortDescription sortDescription in ModsGridCollectionView.SortDescriptions)
-        {
-            if (SelectedGroupingOption.Strategy.ShouldSkipSortDescription(sortDescription)) continue;
-
-            yield return CreateSorterFromSortDescription(sortDescription);
-        }
-    }
-
     public abstract class ModEntrySorter
     {
         public abstract IOrderedEnumerable<ModEntryViewModel> Apply(IEnumerable<ModEntryViewModel> mods);
@@ -143,20 +96,23 @@ public partial class ModListViewModel
 
     public interface IGroupingStrategy
     {
-        ModEntrySorter? GetPrimarySorter();
+        IObservable<ModEntrySorter?> GetPrimarySorter();
 
-        bool ShouldSkipSortDescription(DataGridSortDescription sortDescription);
+        IObservable<bool> ShouldSkipSortDescription(DataGridSortDescription sortDescription);
 
-        DataGridGroupDescription? GetGroupDescription();
+        IObservable<DataGridGroupDescription?> GetGroupDescription();
     }
 
     private class DisabledGroupingStrategy : IGroupingStrategy
     {
-        public ModEntrySorter? GetPrimarySorter() => null;
+        public IObservable<ModEntrySorter?> GetPrimarySorter() 
+            => Observable.Return<ModEntrySorter?>(null);
 
-        public bool ShouldSkipSortDescription(DataGridSortDescription sortDescription) => false;
+        public IObservable<bool> ShouldSkipSortDescription(DataGridSortDescription sortDescription) 
+            => Observable.Return(false);
 
-        public DataGridGroupDescription? GetGroupDescription() => null;
+        public IObservable<DataGridGroupDescription?> GetGroupDescription() 
+            => Observable.Return<DataGridGroupDescription?>(null);
     }
 
     private static readonly DataGridGroupDescription GroupingByCategory =
@@ -192,49 +148,56 @@ public partial class ModListViewModel
             };
 
         private readonly DataGridCollectionView _modsCollectionView;
+        private readonly IObservable<DataGridSortDescription?> _firstSortDescriptionObs;
 
         public SortBasedGroupingStrategy(DataGridCollectionView modsCollectionView)
         {
             _modsCollectionView = modsCollectionView;
+            
+            _firstSortDescriptionObs = _modsCollectionView.SortDescriptions.ToObservableChangeSet()
+                .Snapshots()
+                .SelectFirstOrDefault();
         }
 
-        private DataGridSortDescription? GetFirstSortDescription()
-            => _modsCollectionView.SortDescriptions.FirstOrDefault();
-
-        public ModEntrySorter? GetPrimarySorter()
+        public IObservable<ModEntrySorter?> GetPrimarySorter()
         {
-            DataGridSortDescription? sortDescription = GetFirstSortDescription();
+            return _firstSortDescriptionObs
+                .Select(description =>
+                {
+                    if (
+                        description is { HasPropertyPath: true } &&
+                        PrependedSortersByProperty.TryGetValue(description.PropertyPath, out ModEntrySorter? sorter)
+                    )
+                    {
+                        return sorter;
+                    }
 
-            if (
-                sortDescription is { HasPropertyPath: true } &&
-                PrependedSortersByProperty.TryGetValue(sortDescription.PropertyPath, out ModEntrySorter? sorter)
-            )
-            {
-                return sorter;
-            }
-
-            return null;
+                    return null;
+                });
         }
 
         /// <remarks>Even if we prepend a different grouping sort, we still need to keep the column intact</remarks>
-        public bool ShouldSkipSortDescription(DataGridSortDescription sortDescription) => false;
+        public IObservable<bool> ShouldSkipSortDescription(DataGridSortDescription sortDescription)
+            => Observable.Return(false);
 
-        public DataGridGroupDescription? GetGroupDescription()
+        public IObservable<DataGridGroupDescription?> GetGroupDescription()
         {
-            DataGridSortDescription? sortDescription = GetFirstSortDescription();
+            return _firstSortDescriptionObs
+                .Select(sortDescription =>
+                {
+                    if (
+                        sortDescription is { HasPropertyPath: true } &&
+                        GroupingDescriptionsByProperty.TryGetValue(
+                            sortDescription.PropertyPath,
+                            out DataGridGroupDescription? groupDescription
+                        )
+                    )
+                    {
+                        return groupDescription;
+                    }
 
-            if (
-                sortDescription is { HasPropertyPath: true } &&
-                GroupingDescriptionsByProperty.TryGetValue(
-                    sortDescription.PropertyPath,
-                    out DataGridGroupDescription? groupDescription
-                )
-            )
-            {
-                return groupDescription;
-            }
-
-            return null;
+                    return null;
+                });
         }
     }
 
@@ -249,16 +212,16 @@ public partial class ModListViewModel
             _sorter = CreateSorterFromSortDescription(DataGridSortDescription.FromPath(_propertyPath));
         }
 
-        public ModEntrySorter GetPrimarySorter() => _sorter;
+        public IObservable<ModEntrySorter?> GetPrimarySorter() => Observable.Return(_sorter);
 
-        public bool ShouldSkipSortDescription(DataGridSortDescription sortDescription)
-            => sortDescription.HasPropertyPath && sortDescription.PropertyPath == _propertyPath;
+        public IObservable<bool> ShouldSkipSortDescription(DataGridSortDescription sortDescription)
+            => Observable.Return(sortDescription.HasPropertyPath && sortDescription.PropertyPath == _propertyPath);
 
-        public DataGridGroupDescription? GetGroupDescription()
+        public IObservable<DataGridGroupDescription?> GetGroupDescription()
         {
             GroupingDescriptionsByProperty.TryGetValue(_propertyPath, out DataGridGroupDescription? groupDescription);
 
-            return groupDescription;
+            return Observable.Return(groupDescription);
         }
     }
 }
