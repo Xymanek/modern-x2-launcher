@@ -152,35 +152,34 @@ public partial class ModListViewModel : ViewModelBase
 
                         return sorters;
                     });
-                
+
                 return sortersObs;
             });
 
         IObservable<IComparer<ModEntryViewModel>> listComparerObs = sortersObs
             .Select(sorters => sorters.Select(sorter => sorter.AsComparer()).ToStack());
 
+        IObservable<Unit> WhenResortMod(ModEntryViewModel mod)
+        {
+            return sortersObs.SelectMany(sorters =>
+            {
+                return sorters.Select(sorter => sorter.ResortObservableProvider)
+                    .WhereNotNull()
+                    .Select(resortProvider => resortProvider(mod))
+                    .Merge();
+            });
+        }
+
         // This is really stupid, but using .Sort(listComparerObs) causes comparisons of
         // preexisting elements (when subscribing) to happen before the comparer is received
         // so the default comparer is used, which throws as mod VM doesn't implement IComparable
         return listComparerObs
-            .SelectMany(comparer =>
-            {
-                return Mods.Connect()
-                    .AutoRefreshOnObservable(mod =>
-                    {
-                        return sortersObs
-                            .SelectMany(sorters =>
-                            {
-                                return sorters
-                                    .Select(sorter => sorter.ResortObservableProvider)
-                                    .WhereNotNull()
-                                    .Select(resortProvider => resortProvider(mod).Select(_ => mod))
-                                    .Merge();
-                            });
-                    })
+            .SelectMany(
+                comparer => Mods.Connect()
+                    .AutoRefreshOnObservable(WhenResortMod)
                     .Sort(comparer, comparerChanged: listComparerObs.Skip(1))
-                    .SuppressRefresh();
-            })
+                    .SuppressRefresh()
+            )
             .Snapshots()
             .CombineLatest(groupingStrategyObs.SelectMany(strategy => strategy.GetGroupDescription()))
             // TODO: How to not fire twice on grouping change? (comparer + description changes)
