@@ -116,8 +116,6 @@ public partial class ModListViewModel : ViewModelBase
         SetSelectedModsCategoryOptionStream = Mods.Connect()
             .DistinctValues(modVm => modVm.Category)
             .Transform(category => new SetSelectedModsCategoryOption(category, this));
-
-        SetupDisplayedMods();
     }
 
     private GroupingOption SetupGroupingOption(string label, IGroupingStrategy strategy)
@@ -161,26 +159,34 @@ public partial class ModListViewModel : ViewModelBase
         IObservable<IComparer<ModEntryViewModel>> listComparerObs = sortersObs
             .Select(sorters => sorters.Select(sorter => sorter.AsComparer()).ToStack());
 
-        return Mods.Connect()
-            .AutoRefreshOnObservable(mod =>
+        // This is really stupid, but using .Sort(listComparerObs) causes comparisons of
+        // preexisting elements (when subscribing) to happen before the comparer is received
+        // so the default comparer is used, which throws as mod VM doesn't implement IComparable
+        return listComparerObs
+            .SelectMany(comparer =>
             {
-                return sortersObs
-                    .SelectMany(sorters =>
+                return Mods.Connect()
+                    .AutoRefreshOnObservable(mod =>
                     {
-                        return sorters
-                            .Select(sorter => sorter.ResortObservableProvider)
-                            .WhereNotNull()
-                            .Select(resortProvider => resortProvider(mod).Select(_ => mod))
-                            .Merge();
-                    });
+                        return sortersObs
+                            .SelectMany(sorters =>
+                            {
+                                return sorters
+                                    .Select(sorter => sorter.ResortObservableProvider)
+                                    .WhereNotNull()
+                                    .Select(resortProvider => resortProvider(mod).Select(_ => mod))
+                                    .Merge();
+                            });
+                    })
+                    .Sort(comparer, comparerChanged: listComparerObs.Skip(1))
+                    .SuppressRefresh();
             })
-            .Sort(listComparerObs)
-            .SuppressRefresh()
             .Snapshots()
             .CombineLatest(groupingStrategyObs.SelectMany(strategy => strategy.GetGroupDescription()))
             // TODO: How to not fire twice on grouping change? (comparer + description changes)
             .Subscribe(tuple =>
             {
+                // TODO: this is never reached
                 (IReadOnlyCollection<ModEntryViewModel> mods, DataGridGroupDescription? groupDescription) = tuple;
 
                 using (ModsGridCollectionView.DeferRefresh())
