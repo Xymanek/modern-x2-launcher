@@ -183,28 +183,28 @@ public partial class ModListViewModel : ViewModelBase
             .Snapshots()
             .CombineLatest(groupingStrategyObs.SelectMany(strategy => strategy.GetGroupDescription()))
             // TODO: How to not fire twice on grouping change? (comparer + description changes)
-            .Subscribe(tuple =>
+            // TODO: this is never reached
+            .Subscribe(tuple => SetListContents(tuple.First, tuple.Second));
+
+        void SetListContents(IEnumerable<ModEntryViewModel> mods, DataGridGroupDescription? groupDescription)
+        {
+            using (ModsGridCollectionView.DeferRefresh())
             {
-                // TODO: this is never reached
-                (IReadOnlyCollection<ModEntryViewModel> mods, DataGridGroupDescription? groupDescription) = tuple;
+                _currentDisplayedMods.Clear();
+                _currentDisplayedMods.AddRange(mods);
 
-                using (ModsGridCollectionView.DeferRefresh())
-                {
-                    _currentDisplayedMods.Clear();
-                    _currentDisplayedMods.AddRange(mods);
+                ModsGridCollectionView.GroupDescriptions.Clear();
+                if (groupDescription != null) ModsGridCollectionView.GroupDescriptions.Add(groupDescription);
 
-                    ModsGridCollectionView.GroupDescriptions.Clear();
-                    if (groupDescription != null) ModsGridCollectionView.GroupDescriptions.Add(groupDescription);
-
-                    // Force the reset of tracking enumerator and refresh of the data grid
-                    // (see Avalonia.Collections.DataGridCollectionView.EnsureCollectionInSync).
-                    //
-                    // Calling ModsGridCollectionView.Refresh() here would be suboptimal as
-                    // that would not reset the tracking enumerator, hence likely causing
-                    // a second (unnecessary) refresh of the collection view later.
-                    _ = ModsGridCollectionView.IsEmpty;
-                }
-            });
+                // Force the reset of tracking enumerator and refresh of the data grid
+                // (see Avalonia.Collections.DataGridCollectionView.EnsureCollectionInSync).
+                //
+                // Calling ModsGridCollectionView.Refresh() here would be suboptimal as
+                // that would not reset the tracking enumerator, hence likely causing
+                // a second (unnecessary) refresh of the collection view later.
+                _ = ModsGridCollectionView.IsEmpty;
+            }
+        }
     }
 
     // ObservableCollection doesn't support batch adding (outside of instantiation)
