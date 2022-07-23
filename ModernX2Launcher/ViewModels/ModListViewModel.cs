@@ -210,14 +210,17 @@ public partial class ModListViewModel : ViewModelBase
                     .Merge();
             });
         }
-        
+
+        IObservable<DataGridGroupDescription?> groupDescriptionObs = groupingStrategyObs
+            .Select(strategy => strategy.GetGroupDescription())
+            .Switch();
+
         return Mods.Connect()
             .AutoRefreshOnObservable(WhenResortMod) // Note: SuppressRefresh after Sort breaks *all* sorting 
             .SortFixed(listComparerObs)
             .Snapshots()
-            // .CombineLatest(groupingStrategyObs.SelectMany(strategy => strategy.GetGroupDescription()))
-            .Subscribe(mods => SetListContents(mods, null));
-            // .Subscribe(tuple => SetListContents(tuple.First, tuple.Second));
+            .CombineLatest(groupDescriptionObs)
+            .Subscribe(tuple => SetListContents(tuple.First, tuple.Second));
 
         void SetListContents(IEnumerable<ModEntryViewModel> mods, DataGridGroupDescription? groupDescription)
         {
