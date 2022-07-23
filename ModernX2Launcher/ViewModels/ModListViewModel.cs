@@ -201,14 +201,16 @@ public partial class ModListViewModel : ViewModelBase
 
         IObservable<Unit> WhenResortMod(ModEntryViewModel mod)
         {
-            return sortersObs.SelectMany(sorters =>
-            {
-                return sorters
-                    .Select(sorter => sorter.ResortObservableProvider)
-                    .WhereNotNull()
-                    .Select(resortProvider => resortProvider(mod))
-                    .Merge();
-            });
+            return sortersObs
+                .Select(sorters =>
+                {
+                    return sorters
+                        .Select(sorter => sorter.ResortObservableProvider)
+                        .WhereNotNull()
+                        .Select(resortProvider => resortProvider(mod))
+                        .Merge();
+                })
+                .Switch();
         }
 
         IObservable<DataGridGroupDescription?> groupDescriptionObs = groupingStrategyObs
