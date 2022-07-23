@@ -187,15 +187,32 @@ public partial class ModListViewModel : ViewModelBase
         //     // TODO: this is never reached
         //     .Subscribe(tuple => SetListContents(tuple.First, tuple.Second));
 
-        IObservable<IReadOnlyCollection<ModEntrySorter>> sortersObs = ModsGridCollectionView.SortDescriptions
-            .ToObservableChangeSet()
-            .Transform(CreateSorterFromSortDescription)
-            .QueryWhenChanged()
+        IObservable<IReadOnlyCollection<ModEntrySorter>> sortersObs = groupingStrategyObs
+            .Select(strategy =>
+            {
+                return ModsGridCollectionView.SortDescriptions
+                    .ToObservableChangeSet()
+                    .Transform(CreateSorterFromSortDescription)
+                    .QueryWhenChanged()
 
-            // When changing sorting, first the list is cleared and then the new sort description is added.
-            // We always want to sort by something, so we skip the "descriptions cleared" emit.
-            // Not using Snapshots above for the same reason.
-            .Where(sorters => sorters.Any());
+                    // When changing sorting, first the list is cleared and then the new sort description is added.
+                    // We always want to sort by something, so we skip the "descriptions cleared" emit.
+                    // Not using Snapshots above for the same reason.
+                    .Where(sorters => sorters.Any())
+                    .CombineLatest(strategy.GetPrimarySorter())
+                    .Select(tuple =>
+                    {
+                        (IReadOnlyCollection<ModEntrySorter> sorters, ModEntrySorter? primarySorter) = tuple;
+
+                        if (primarySorter != null)
+                        {
+                            sorters = sorters.Prepend(primarySorter).ToArray();
+                        }
+
+                        return sorters;
+                    });
+            })
+            .Switch();
 
         IObservable<IComparer<ModEntryViewModel>> listComparerObs = sortersObs
             .Select(sorters => sorters.Select(sorter => sorter.AsComparer()).ToStack());
