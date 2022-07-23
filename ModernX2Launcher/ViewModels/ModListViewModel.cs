@@ -57,12 +57,13 @@ public partial class ModListViewModel : ViewModelBase
                 },
                 listViewModel.SelectedMods.Connect()
                     .Snapshots()
-                    .SelectMany(
+                    .Select(
                         selectedMods => selectedMods
                             .Select(mod => mod.WhenAnyValue(m => m.Category))
                             .CombineLatest()
                             .Select(selectedModsCategories => selectedModsCategories.Any(c => c != category))
                     )
+                    .Switch()
             );
         }
 
