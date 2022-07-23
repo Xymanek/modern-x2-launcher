@@ -199,7 +199,20 @@ public partial class ModListViewModel : ViewModelBase
         IObservable<IComparer<ModEntryViewModel>> listComparerObs = sortersObs
             .Select(sorters => sorters.Select(sorter => sorter.AsComparer()).ToStack());
 
+        IObservable<Unit> WhenResortMod(ModEntryViewModel mod)
+        {
+            return sortersObs.SelectMany(sorters =>
+            {
+                return sorters
+                    .Select(sorter => sorter.ResortObservableProvider)
+                    .WhereNotNull()
+                    .Select(resortProvider => resortProvider(mod))
+                    .Merge();
+            });
+        }
+        
         return Mods.Connect()
+            .AutoRefreshOnObservable(WhenResortMod) // Note: SuppressRefresh after Sort breaks *all* sorting 
             .SortFixed(listComparerObs)
             .Snapshots()
             // .CombineLatest(groupingStrategyObs.SelectMany(strategy => strategy.GetGroupDescription()))
