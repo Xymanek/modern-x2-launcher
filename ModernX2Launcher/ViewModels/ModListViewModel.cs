@@ -133,13 +133,18 @@ public partial class ModListViewModel : ViewModelBase
                 return ModsGridCollectionView.SortDescriptions
                     .ToObservableChangeSet()
                     .QueryWhenChanged()
+
+                    // When changing sorting, first the list is cleared and then the new sort description is added.
+                    // We always want to sort by something, so we skip the "descriptions cleared" emit.
+                    // Not using Snapshots() above for the same reason.
+                    .Where(sortDescriptions => sortDescriptions.Any())
                     .FilterEach(sortDescription =>
                     {
                         return strategy.ShouldSkipSortDescription(sortDescription)
                             .Select(b => !b);
                     })
                     .Transform(CreateSorterFromSortDescription)
-                    .CombineLatest(strategy.GetPrimarySorter())
+                    .CombineLatest(strategy.PrimarySorterObs)
                     .Select(tuple =>
                     {
                         (IReadOnlyCollection<ModEntrySorter> sorters, ModEntrySorter? primarySorter) = tuple;
@@ -150,12 +155,7 @@ public partial class ModListViewModel : ViewModelBase
                         }
 
                         return sorters;
-                    })
-                    
-                    // When changing sorting, first the list is cleared and then the new sort description is added.
-                    // We always want to sort by something, so we skip the "descriptions cleared" emit.
-                    // Not using Snapshots() above for the same reason.
-                    .Where(sorters => sorters.Any());
+                    });
             })
             .Switch();
 
@@ -177,7 +177,7 @@ public partial class ModListViewModel : ViewModelBase
         }
 
         IObservable<DataGridGroupDescription?> groupDescriptionObs = groupingStrategyObs
-            .Select(strategy => strategy.GetGroupDescription())
+            .Select(strategy => strategy.GroupDescriptionObs)
             .Switch();
 
         return Mods.Connect()
