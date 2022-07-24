@@ -1,6 +1,8 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using Avalonia;
 using Avalonia.Controls;
+using Avalonia.Interactivity;
 using Avalonia.Markup.Xaml;
 using Avalonia.ReactiveUI;
 using DynamicData;
@@ -70,5 +72,14 @@ public partial class ModListView : ReactiveUserControl<ModListViewModel>
             mods.AddRange(e.AddedItems.OfType<ModEntryViewModel>());
             mods.RemoveMany(e.RemovedItems.OfType<ModEntryViewModel>());
         });
+    }
+
+    private void OnToggleModEnabled(object? sender, RoutedEventArgs e)
+    {
+        CheckBox checkBox = (CheckBox)sender!;
+        ModEntryViewModel interactedMod = (ModEntryViewModel)checkBox.DataContext!;
+
+        ViewModel!.ToggleModEnabled.Execute(interactedMod)
+            .Subscribe();
     }
 }

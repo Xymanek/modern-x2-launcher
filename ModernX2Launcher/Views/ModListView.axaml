@@ -87,7 +87,14 @@
                 <!-- It's all private/internal - will likely need a patch to avalonia itself to disable it -->
 
                 <!-- TODO: Can still drag other columns before this one -->
-                <DataGridCheckBoxColumn Header="" Binding="{Binding IsEnabled}" MinWidth="25" CanUserReorder="False" />
+                <DataGridTemplateColumn>
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate DataType="vm:ModEntryViewModel">
+                            <CheckBox Margin="2 0"
+                                      IsChecked="{Binding IsEnabled, Mode=OneWay}" Click="OnToggleModEnabled" />
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
 
                 <DataGridTextColumn Header="Title" Binding="{Binding Title}" />
                 <DataGridTextColumn Header="Category" Binding="{Binding Category}" />

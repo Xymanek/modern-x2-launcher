@@ -115,6 +115,8 @@ public partial class ModListViewModel : ViewModelBase
         SetSelectedModsCategoryOptionStream = Mods.Connect()
             .DistinctValues(modVm => modVm.Category)
             .Transform(category => new SetSelectedModsCategoryOption(category, this));
+
+        ToggleModEnabled = ReactiveCommand.Create<ModEntryViewModel>(OnToggleModEnabled);
     }
 
     private GroupingOption SetupGroupingOption(string label, IGroupingStrategy strategy)
@@ -225,6 +227,23 @@ public partial class ModListViewModel : ViewModelBase
     public SourceList<ModEntryViewModel> SelectedMods { get; } = new();
 
     public IObservable<IChangeSet<SetSelectedModsCategoryOption>> SetSelectedModsCategoryOptionStream { get; }
+
+    public ReactiveCommand<ModEntryViewModel, Unit> ToggleModEnabled { get; }
+
+    private void OnToggleModEnabled(ModEntryViewModel interactedMod)
+    {
+        bool newIsEnabled = !interactedMod.IsEnabled;
+
+        // If we click the checkbox on one of the enabled mods, then do the same change to all of them
+        IEnumerable<ModEntryViewModel> modsToUpdate = SelectedMods.Items.Contains(interactedMod)
+            ? SelectedMods.Items
+            : new[] { interactedMod };
+
+        foreach (ModEntryViewModel mod in modsToUpdate)
+        {
+            mod.IsEnabled = newIsEnabled;
+        }
+    }
 }
 
 public class DesignTimeModListViewModel : ModListViewModel
