@@ -57,11 +57,28 @@
         <DataGrid Items="{Binding ModsGridCollectionView}" AutoGenerateColumns="False"
                   IsReadOnly="True" CanUserReorderColumns="True"
                   CanUserResizeColumns="True" CanUserSortColumns="True"
+                  RowBackground="#00FFFFFF"
                   LoadingRow="DataGrid_OnLoadingRow"
                   SelectionChanged="DataGrid_OnSelectionChanged">
             <DataGrid.Styles>
                 <Style Selector="DataGridRowGroupHeader">
                     <Setter Property="IsItemCountVisible" Value="True"></Setter>
+                </Style>
+
+                <Style Selector="CheckBox">
+                    <Setter Property="Background" Value="#FFFFFF" />
+                </Style>
+
+                <Style Selector="DataGridRow /template/ Rectangle#BackgroundRectangle">
+                    <Setter Property="Fill" Value="{DynamicResource ThemeAccentBrush4}" />
+                </Style>
+
+                <Style Selector="DataGridRow:selected /template/ Rectangle#BackgroundRectangle">
+                    <Setter Property="Fill" Value="{DynamicResource ThemeAccentBrush1}" />
+                </Style>
+
+                <Style Selector="DataGridRow:selected">
+                    <Setter Property="Foreground" Value="#000000" />
                 </Style>
             </DataGrid.Styles>
 
