@@ -42,7 +42,8 @@ public static class DynamicDataExtensions
         return Observable.Defer(() =>
         {
             // This ensures that .Take(1) and .Skip(1) operate on the same element
-            // (regardless of how the comparer sequence is setup)
+            // (regardless of how the comparer sequence is setup).
+            // TODO: verify that this works as intended
             IObservable<IComparer<T>> replayedComparerChanged = comparerChanged.Replay().RefCount();
             
             return replayedComparerChanged
