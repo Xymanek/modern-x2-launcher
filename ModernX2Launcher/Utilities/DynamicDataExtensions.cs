@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Reactive;
+using System.Reactive.Disposables;
 using System.Reactive.Linq;
+using System.Reactive.Subjects;
 using Avalonia.Collections;
 using DynamicData;
 using DynamicData.Binding;
@@ -39,22 +41,36 @@ public static class DynamicDataExtensions
         int resetThreshold = 50
     )
     {
-        return Observable.Defer(() =>
+        return Observable.Create<IChangeSet<T>>(observer =>
         {
+            CompositeDisposable disposables = new();
+
             // This ensures that .Take(1) and .Skip(1) operate on the same element
             // (regardless of how the comparer sequence is setup).
-            // TODO: verify that this works as intended
-            IObservable<IComparer<T>> replayedComparerChanged = comparerChanged.Replay().RefCount();
-            
-            return replayedComparerChanged
+            IConnectableObservable<IComparer<T>> replayedComparerChanged = comparerChanged.Replay();
+
+            // We are being subscribed to, so also subscribe to the comparerChanged
+            replayedComparerChanged.Connect()
+
+                // When we are unsubscribed from, we need to also stop buffering the comparerChanged emits
+                .DisposeWith(disposables);
+
+            replayedComparerChanged
                 .Take(1)
+
+                // Due to Take(1), it doesn't matter if we use SelectMany() or Select().Switch() here
+                // (using SelectMany since Switch's implementation is more complicated)
                 .SelectMany(comparerInitial => source.Sort(
                     comparerInitial,
                     options,
                     resort,
                     replayedComparerChanged.Skip(1),
                     resetThreshold
-                ));
+                ))
+                .SubscribeSafe(observer)
+                .DisposeWith(disposables);
+
+            return disposables;
         });
     }
 }
