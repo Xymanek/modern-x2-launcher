@@ -65,6 +65,7 @@
                     <Setter Property="IsItemCountVisible" Value="True"></Setter>
                 </Style>
 
+                <!-- The default BG is transparent and we don't want the row background to "leak" into the checkbox -->
                 <Style Selector="CheckBox">
                     <Setter Property="Background" Value="#FFFFFF" />
                 </Style>

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Reactive;
 using System.Reactive.Disposables;
 using System.Reactive.Linq;
@@ -117,6 +118,55 @@ public partial class ModListViewModel : ViewModelBase
             .Transform(category => new SetSelectedModsCategoryOption(category, this));
 
         ToggleModEnabled = ReactiveCommand.Create<ModEntryViewModel>(OnToggleModEnabled);
+
+        EnableSelectedMods = ReactiveCommand.Create(
+            OnEnableSelectedMods,
+            WhenAnySelectedModsAreNot(mod => mod.IsEnabled)
+        );
+    }
+
+    private IObservable<bool> WhenAnySelectedModsAre(
+        Expression<Func<ModEntryViewModel, bool>> propertyExpression
+    )
+    {
+        return WhenAnySelectedModsAre(propertyExpression, b => b);
+    }
+    
+    private IObservable<bool> WhenAnySelectedModsAreNot(
+        Expression<Func<ModEntryViewModel, bool>> propertyExpression
+    )
+    {
+        return WhenAnySelectedModsAre(propertyExpression, b => !b);
+    }
+    
+    private IObservable<bool> WhenAnySelectedModsAre<TProperty>(
+        Expression<Func<ModEntryViewModel, TProperty>> propertyExpression,
+        Func<TProperty, bool> propertyEvaluator
+    )
+    {
+        return WhenSelectedModsAre(propertyExpression, values => values.Any(propertyEvaluator));
+    }
+
+    private IObservable<bool> WhenSelectedModsAre<TProperty>(
+        Expression<Func<ModEntryViewModel, TProperty>> propertyExpression,
+        Func<IList<TProperty>, bool> propertyValuesEvaluator
+    )
+    {
+        return SelectedMods.Connect()
+            .Snapshots()
+            .Select(selectedMods =>
+            {
+                // If no mods are selected, then we can't preform any operation on selected mods (duh) 
+                if (selectedMods.Count < 1)
+                {
+                    return Observable.Return(false);
+                }
+
+                return selectedMods
+                    .Select(mod => mod.WhenAnyValue(propertyExpression))
+                    .CombineLatest(propertyValuesEvaluator);
+            })
+            .Switch();
     }
 
     private GroupingOption SetupGroupingOption(string label, IGroupingStrategy strategy)
@@ -242,6 +292,16 @@ public partial class ModListViewModel : ViewModelBase
         foreach (ModEntryViewModel mod in modsToUpdate)
         {
             mod.IsEnabled = newIsEnabled;
+        }
+    }
+
+    public ReactiveCommand<Unit, Unit> EnableSelectedMods { get; }
+
+    private void OnEnableSelectedMods()
+    {
+        foreach (ModEntryViewModel mod in SelectedMods.Items)
+        {
+            mod.IsEnabled = true;
         }
     }
 }
