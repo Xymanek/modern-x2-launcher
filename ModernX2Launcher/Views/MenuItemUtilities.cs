@@ -19,6 +19,12 @@ public static class MenuItemUtilities
         return new CanExecuteFix(menuItem, command);
     }
 
+    // This is as stupid as it looks. However, since MenuItem doesn't listen to CanExecute
+    // changes while not attached to the logical tree (and the selection changes happen before
+    // the menu is opened), our updates are lost. Additionally, both triggering the CanExecuteChanged
+    // event and the MenuItem::CanExecuteChanged handler are not public, so the only way to force it
+    // to run is via command (and command parameter) change handlers.
+    // This will be fixed in avalonia v0.11
     private sealed class CanExecuteFix : IDisposable
     {
         private readonly MenuItem _menuItem;

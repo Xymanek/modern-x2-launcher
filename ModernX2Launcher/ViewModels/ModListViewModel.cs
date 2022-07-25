@@ -42,31 +42,29 @@ public partial class ModListViewModel : ViewModelBase
 
     public sealed class SetSelectedModsCategoryOption
     {
+        private readonly ModListViewModel _listViewModel;
+        private readonly string _category;
+
         public SetSelectedModsCategoryOption(string category, ModListViewModel listViewModel)
         {
-            Label = category;
+            _listViewModel = listViewModel;
+            _category = category;
 
             Command = ReactiveCommand.Create(
-                (Unit _) =>
-                {
-                    foreach (ModEntryViewModel mod in listViewModel.SelectedMods.Items)
-                    {
-                        mod.Category = category;
-                    }
-                },
-                listViewModel.SelectedMods.Connect()
-                    .Snapshots()
-                    .Select(
-                        selectedMods => selectedMods
-                            .Select(mod => mod.WhenAnyValue(m => m.Category))
-                            .CombineLatest()
-                            .Select(selectedModsCategories => selectedModsCategories.Any(c => c != category))
-                    )
-                    .Switch()
+                OnSelected,
+                listViewModel.WhenAnySelectedModsAre(mod => mod.Category, modCategory => modCategory != _category)
             );
         }
 
-        public string Label { get; }
+        private void OnSelected()
+        {
+            foreach (ModEntryViewModel mod in _listViewModel.SelectedMods.Items)
+            {
+                mod.Category = _category;
+            }
+        }
+
+        public string Label => _category;
 
         public ReactiveCommand<Unit, Unit> Command { get; }
     }
