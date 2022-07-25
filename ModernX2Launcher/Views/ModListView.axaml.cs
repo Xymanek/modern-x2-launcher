@@ -29,12 +29,8 @@ public partial class ModListView : ReactiveUserControl<ModListViewModel>
         {
             Items = new object[]
             {
-                new MenuItem { Header = "Test 1", IsEnabled = false },
-                new MenuItem { Header = "Test 2" },
-
-                new Separator(),
-                
                 new MenuItem { Header = "Enable" }.SetCommandFixedCanExecute(ViewModel!.EnableSelectedMods),
+                new MenuItem { Header = "Disable" }.SetCommandFixedCanExecute(ViewModel!.DisableSelectedMods),
                 
                 new Separator(),
 

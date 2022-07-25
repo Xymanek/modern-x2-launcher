@@ -66,4 +66,14 @@ public partial class ModListViewModel
             mod.IsEnabled = true;
         }
     }
+    
+    public ReactiveCommand<Unit, Unit> DisableSelectedMods { get; }
+
+    private void OnDisableSelectedMods()
+    {
+        foreach (ModEntryViewModel mod in SelectedMods.Items)
+        {
+            mod.IsEnabled = false;
+        }
+    }
 }

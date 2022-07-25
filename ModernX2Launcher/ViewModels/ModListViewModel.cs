@@ -91,6 +91,11 @@ public partial class ModListViewModel : ViewModelBase
             OnEnableSelectedMods,
             WhenAnySelectedModsAreNot(mod => mod.IsEnabled)
         );
+        
+        DisableSelectedMods = ReactiveCommand.Create(
+            OnDisableSelectedMods,
+            WhenAnySelectedModsAre(mod => mod.IsEnabled)
+        );
     }
 
     private GroupingOption SetupGroupingOption(string label, IGroupingStrategy strategy)
