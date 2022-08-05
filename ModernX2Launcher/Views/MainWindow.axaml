@@ -25,9 +25,11 @@
                 <RowDefinition MinHeight="200" />
             </Grid.RowDefinitions>
 
-            <ContentControl Content="{Binding ModList}" Grid.Row="0" />
+            <ContentControl Content="{Binding ModList}"
+                            Grid.Row="0" Padding="0 0 0 4" />
             <GridSplitter Grid.Row="1" ResizeDirection="Rows" />
-            <ContentControl Content="{Binding ModInfo}" Grid.Row="2" />
+            <ContentControl Content="{Binding ModInfo}"
+                            Grid.Row="2" Padding="0 4 0 0"/>
         </Grid>    
     </Grid>
 </Window>
