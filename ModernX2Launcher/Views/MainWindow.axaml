@@ -1,6 +1,7 @@
 <Window xmlns="https://github.com/avaloniaui"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:vm="using:ModernX2Launcher.ViewModels"
+        xmlns:controls="clr-namespace:ModernX2Launcher.Views.Controls"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
@@ -13,23 +14,70 @@
         <vm:MainWindowViewModel />
     </Design.DataContext>
 
-    <Grid RowDefinitions="Auto, *">
-        <Button Command="{Binding TestStuff}">
-            Test stuff
-        </Button>
+    <DockPanel LastChildFill="True">
         
-        <Grid Grid.Row="1" Margin="5">
-            <Grid.RowDefinitions>
-                <RowDefinition MinHeight="150"/>
-                <RowDefinition Height="4" />
-                <RowDefinition MinHeight="200" />
-            </Grid.RowDefinitions>
+        <Menu DockPanel.Dock="Top">
+            <MenuItem Header="_File">
+                <MenuItem Header="_Open..."/>
+                <Separator/>
+                <MenuItem Header="_Exit"/>
+            </MenuItem>
+            <MenuItem Header="_Edit">
+                <MenuItem Header="Copy"/>
+                <MenuItem Header="Paste"/>
+            </MenuItem>
+        </Menu>
+        
+        <SplitView IsPaneOpen="False" DisplayMode="CompactInline"
+                   OpenPaneLength="296">
+            <SplitView.Pane>
+                <StackPanel>
+                    <controls:MainWindowModeButton ModeName="Mods" Icon="FormatListChecks" />
+                    <controls:MainWindowModeButton ModeName="Overrides" Icon="AlertRhombusOutline" />
+                    <controls:MainWindowModeButton ModeName="Profile management" Icon="FileSwapOutline" />
+                </StackPanel>
+            </SplitView.Pane>
 
-            <ContentControl Content="{Binding ModList}"
-                            Grid.Row="0" Padding="0 0 0 4" />
-            <GridSplitter Grid.Row="1" ResizeDirection="Rows" />
-            <ContentControl Content="{Binding ModInfo}"
-                            Grid.Row="2" Padding="0 4 0 0"/>
-        </Grid>    
-    </Grid>
+            <DockPanel LastChildFill="True">
+                <DockPanel DockPanel.Dock="Top" Margin="3">
+                    <Button DockPanel.Dock="Right" HorizontalAlignment="Right">
+                        Launch
+                    </Button>
+
+                    <Button DockPanel.Dock="Right" HorizontalAlignment="Right" Margin="0 0 5 0">
+                        Game arguments
+                    </Button>
+                    
+                    <ComboBox SelectedIndex="0" 
+                              DockPanel.Dock="Right" HorizontalAlignment="Right" Margin="0 0 5 0"
+                              ToolTip.Tip="Active profile">
+                        <ComboBoxItem>Default</ComboBoxItem>
+                        <ComboBoxItem>Inline Item 2</ComboBoxItem>
+                        <ComboBoxItem>Inline Item 3</ComboBoxItem>
+                        <ComboBoxItem>Inline Item 4</ComboBoxItem>
+                    </ComboBox>
+
+                </DockPanel>
+                
+                <Button Command="{Binding TestStuff}" DockPanel.Dock="Top">
+                    Test stuff
+                </Button>
+        
+                <Grid Margin="5">
+                    <Grid.RowDefinitions>
+                        <RowDefinition MinHeight="150"/>
+                        <RowDefinition Height="4" />
+                        <RowDefinition MinHeight="200" />
+                    </Grid.RowDefinitions>
+
+                    <ContentControl Content="{Binding ModList}"
+                                    Grid.Row="0" Padding="0 0 0 4" />
+                    <GridSplitter Grid.Row="1" ResizeDirection="Rows" />
+                    <ContentControl Content="{Binding ModInfo}"
+                                    Grid.Row="2" Padding="0 4 0 0"/>
+                </Grid>    
+            </DockPanel>
+        </SplitView>
+        
+    </DockPanel>
 </Window>
