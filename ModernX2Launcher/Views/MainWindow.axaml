@@ -34,6 +34,7 @@
                 <StackPanel>
                     <controls:MainWindowModeButton ModeName="Mods" Icon="FormatListChecks" />
                     <controls:MainWindowModeButton ModeName="Overrides" Icon="AlertRhombusOutline" />
+                    <controls:MainWindowModeButton ModeName="Mod updates" Icon="Update" />
                     <controls:MainWindowModeButton ModeName="Profile management" Icon="FileSwapOutline" />
                 </StackPanel>
             </SplitView.Pane>

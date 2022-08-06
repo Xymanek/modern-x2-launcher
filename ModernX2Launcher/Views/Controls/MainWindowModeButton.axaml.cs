@@ -1,10 +1,11 @@
 ﻿using Avalonia;
 using Avalonia.Controls;
+using Avalonia.Controls.Primitives;
 using Material.Icons;
 
 namespace ModernX2Launcher.Views.Controls;
 
-public partial class MainWindowModeButton : UserControl
+public class MainWindowModeButton : TemplatedControl
 {
     public static readonly StyledProperty<string> ModeNameProperty =
         AvaloniaProperty.Register<MainWindowModeButton, string>(nameof(ModeName));
@@ -12,11 +13,6 @@ public partial class MainWindowModeButton : UserControl
     public static readonly StyledProperty<MaterialIconKind> IconProperty =
         AvaloniaProperty.Register<MainWindowModeButton, MaterialIconKind>(nameof(Icon));
     
-    public MainWindowModeButton()
-    {
-        InitializeComponent();
-    }
-
     public string ModeName
     {
         get => GetValue(ModeNameProperty);

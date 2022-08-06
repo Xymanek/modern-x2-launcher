@@ -17,5 +17,8 @@
         <StyleInclude Source="avares://AvaloniaEdit/AvaloniaEdit.xaml" />
         
         <StyleInclude Source="avares://Material.Icons.Avalonia/App.xaml" />
+        
+        <!-- Custom templated controls -->
+        <StyleInclude Source="/Views/Controls/MainWindowModeButton.axaml"></StyleInclude>
     </Application.Styles>
 </Application>
