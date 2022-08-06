@@ -2,6 +2,7 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:vm="using:ModernX2Launcher.ViewModels"
         xmlns:controls="clr-namespace:ModernX2Launcher.Views.Controls"
+        xmlns:mi="clr-namespace:Material.Icons.Avalonia;assembly=Material.Icons.Avalonia"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
@@ -41,6 +42,41 @@
 
             <DockPanel LastChildFill="True">
                 <DockPanel DockPanel.Dock="Top" Margin="3">
+                    <DockPanel.Styles>
+                        <Style Selector="StackPanel.statsIconBlock">
+                            <Setter Property="VerticalAlignment" Value="Center" />
+                            <Setter Property="Margin" Value="0 0 10 0" />
+                            <Setter Property="Orientation" Value="Horizontal" />
+                        </Style>
+
+                        <Style Selector="StackPanel.statsIconBlock mi|MaterialIcon">
+                            <Setter Property="Height" Value="20" />
+                            <Setter Property="Width" Value="20" />
+                        </Style>
+
+                        <Style Selector="StackPanel.statsIconBlock TextBlock">
+                            <Setter Property="VerticalAlignment" Value="Center" />
+                        </Style>
+                    </DockPanel.Styles>
+
+                    <StackPanel DockPanel.Dock="Left" Classes="statsIconBlock"
+                                ToolTip.Tip="Number of enabled mods">
+                        <mi:MaterialIcon Kind="CheckBox" />
+                        <TextBlock Text="{Binding ModList.EnabledCount}" />
+                    </StackPanel>
+
+                    <StackPanel DockPanel.Dock="Left" Classes="statsIconBlock"
+                                ToolTip.Tip="Number of displayed mods (after filtering)">
+                        <mi:MaterialIcon Kind="FilterVariant" />
+                        <TextBlock Text="{Binding ModList.PostFilterCount}" />
+                    </StackPanel>
+
+                    <StackPanel DockPanel.Dock="Left" Classes="statsIconBlock"
+                                ToolTip.Tip="Total number of mods (that MXL is aware of)">
+                        <mi:MaterialIcon Kind="FormatListBulletedSquare" />
+                        <TextBlock Text="{Binding ModList.Mods.CountChanged^}" />
+                    </StackPanel>
+
                     <Button DockPanel.Dock="Right" HorizontalAlignment="Right">
                         Launch
                     </Button>
@@ -48,13 +84,13 @@
                     <!-- ComboBox-like styled Button. TODO: Make ComboBoxFlyout -->
                     <Button DockPanel.Dock="Right" HorizontalAlignment="Right" Margin="0 0 5 0"
                             Background="Transparent" BorderBrush="{DynamicResource ThemeBorderMidBrush}">
-                        
+
                         <!--<Button.Styles>
                             <Style Selector=":pointerover">
                                 <Setter Property="BorderBrush" Value="{DynamicResource ThemeBorderHighBrush}" />
                             </Style>
                         </Button.Styles>-->
-                        
+
                         <Button.Content>
                             <StackPanel Orientation="Horizontal">
                                 <TextBlock Text="Launch arguments" Margin="0 0 4 0" />
@@ -64,7 +100,7 @@
                                       VerticalAlignment="Center"
                                       Data="F1 M 301.14,-189.041L 311.57,-189.041L 306.355,-182.942L 301.14,-189.041 Z"
                                       Fill="{DynamicResource ThemeForegroundBrush}"
-                                      Stretch="Uniform" />  
+                                      Stretch="Uniform" />
                             </StackPanel>
                         </Button.Content>
 

@@ -6,6 +6,7 @@ using System.Reactive.Disposables;
 using System.Reactive.Linq;
 using Avalonia.Collections;
 using DynamicData;
+using DynamicData.Aggregation;
 using ModernX2Launcher.Utilities;
 using ReactiveUI;
 
@@ -41,6 +42,7 @@ public partial class ModListViewModel : ViewModelBase
 
     public IReadOnlyList<GroupingOption> GroupingOptions { get; }
 
+    // Should only ever be manipulated from SetupDisplayedMods.SetListContents
     private readonly List<ModEntryViewModel> _currentDisplayedMods = new();
 
     private GroupingOption _selectedGroupingOption;
@@ -96,6 +98,11 @@ public partial class ModListViewModel : ViewModelBase
             OnDisableSelectedMods,
             WhenAnySelectedModsAre(mod => mod.IsEnabled)
         );
+
+        _enabledCount = Mods.Connect()
+            .FilterOnObservable(mod => mod.WhenAnyValue(m => m.IsEnabled))
+            .Count()
+            .ToProperty(this, nameof(EnabledCount));
     }
 
     private GroupingOption SetupGroupingOption(string label, IGroupingStrategy strategy)
@@ -179,9 +186,13 @@ public partial class ModListViewModel : ViewModelBase
         {
             using (ModsGridCollectionView.DeferRefresh())
             {
+                this.RaisePropertyChanging(nameof(PostFilterCount));
+                
                 _currentDisplayedMods.Clear();
                 _currentDisplayedMods.AddRange(mods);
 
+                this.RaisePropertyChanged(nameof(PostFilterCount));
+                
                 ModsGridCollectionView.GroupDescriptions.Clear();
                 if (groupDescription != null) ModsGridCollectionView.GroupDescriptions.Add(groupDescription);
 
@@ -208,4 +219,9 @@ public partial class ModListViewModel : ViewModelBase
         get => _selectedGroupingOption;
         set => this.RaiseAndSetIfChanged(ref _selectedGroupingOption, value);
     }
+
+    private readonly ObservableAsPropertyHelper<int> _enabledCount;
+    public int EnabledCount => _enabledCount.Value;
+
+    public int PostFilterCount => _currentDisplayedMods.Count;
 }
