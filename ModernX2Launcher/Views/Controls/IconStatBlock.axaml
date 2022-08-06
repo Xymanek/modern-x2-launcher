@@ -1,0 +1,40 @@
+﻿<Styles xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:controls="using:ModernX2Launcher.Views.Controls"
+        xmlns:mi="clr-namespace:Material.Icons.Avalonia;assembly=Material.Icons.Avalonia">
+    <Design.PreviewWith>
+        <Panel>
+            <controls:IconStatBlock Margin="40"
+                                    Icon="Alert"
+                                    ToolTip.Tip="Test">
+                Preview text
+            </controls:IconStatBlock>
+        </Panel>
+    </Design.PreviewWith>
+
+    <Style Selector="controls|IconStatBlock">
+        <!-- Set Defaults -->
+        <Setter Property="Template">
+            <ControlTemplate>
+                <Panel>
+                    <!-- For tooltip hit test -->
+                    <Rectangle />
+                    
+                    <StackPanel Orientation="Horizontal">
+                        <mi:MaterialIcon Kind="{TemplateBinding Icon}" />
+                        <ContentPresenter Name="PART_ContentPresenter"
+                                          Content="{TemplateBinding Content}"
+                                          ContentTemplate="{TemplateBinding ContentTemplate}"/>
+                    </StackPanel>
+                </Panel>
+            </ControlTemplate>
+        </Setter>
+    </Style>
+    
+    <Style Selector="controls|IconStatBlock /template/ mi|MaterialIcon">
+        <Setter Property="Margin" Value="0 0 2 0" />
+    </Style>
+    <Style Selector="controls|IconStatBlock /template/ ContentPresenter#PART_ContentPresenter">
+        <Setter Property="VerticalAlignment" Value="Center" />
+    </Style>
+</Styles>

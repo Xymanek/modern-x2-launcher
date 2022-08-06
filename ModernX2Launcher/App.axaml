@@ -20,5 +20,6 @@
         
         <!-- Custom templated controls -->
         <StyleInclude Source="/Views/Controls/MainWindowModeButton.axaml"></StyleInclude>
+        <StyleInclude Source="/Views/Controls/IconStatBlock.axaml"></StyleInclude>
     </Application.Styles>
 </Application>

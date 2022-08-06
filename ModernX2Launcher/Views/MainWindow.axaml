@@ -43,39 +43,30 @@
             <DockPanel LastChildFill="True">
                 <DockPanel DockPanel.Dock="Top" Margin="3">
                     <DockPanel.Styles>
-                        <Style Selector="StackPanel.statsIconBlock">
-                            <Setter Property="VerticalAlignment" Value="Center" />
+                        <Style Selector="controls|IconStatBlock">
                             <Setter Property="Margin" Value="0 0 10 0" />
-                            <Setter Property="Orientation" Value="Horizontal" />
                         </Style>
 
-                        <Style Selector="StackPanel.statsIconBlock mi|MaterialIcon">
+                        <Style Selector="controls|IconStatBlock /template/ mi|MaterialIcon">
                             <Setter Property="Height" Value="20" />
                             <Setter Property="Width" Value="20" />
                         </Style>
-
-                        <Style Selector="StackPanel.statsIconBlock TextBlock">
-                            <Setter Property="VerticalAlignment" Value="Center" />
-                        </Style>
                     </DockPanel.Styles>
 
-                    <StackPanel DockPanel.Dock="Left" Classes="statsIconBlock"
-                                ToolTip.Tip="Number of enabled mods">
-                        <mi:MaterialIcon Kind="CheckBox" />
-                        <TextBlock Text="{Binding ModList.EnabledCount}" />
-                    </StackPanel>
+                    <controls:IconStatBlock DockPanel.Dock="Left"
+                                            Icon="CheckBox"
+                                            Content="{Binding ModList.EnabledCount}"
+                                            ToolTip.Tip="Number of enabled mods" />
 
-                    <StackPanel DockPanel.Dock="Left" Classes="statsIconBlock"
-                                ToolTip.Tip="Number of displayed mods (after filtering)">
-                        <mi:MaterialIcon Kind="FilterVariant" />
-                        <TextBlock Text="{Binding ModList.PostFilterCount}" />
-                    </StackPanel>
+                    <controls:IconStatBlock DockPanel.Dock="Left"
+                                            Icon="FilterVariant"
+                                            Content="{Binding ModList.PostFilterCount}"
+                                            ToolTip.Tip="Number of displayed mods (after filtering)" />
 
-                    <StackPanel DockPanel.Dock="Left" Classes="statsIconBlock"
-                                ToolTip.Tip="Total number of mods (that MXL is aware of)">
-                        <mi:MaterialIcon Kind="FormatListBulletedSquare" />
-                        <TextBlock Text="{Binding ModList.Mods.CountChanged^}" />
-                    </StackPanel>
+                    <controls:IconStatBlock DockPanel.Dock="Left"
+                                            Icon="FormatListBulletedSquare"
+                                            Content="{Binding ModList.Mods.CountChanged^}"
+                                            ToolTip.Tip="Total number of mods (that MXL is aware of)" />
 
                     <Button DockPanel.Dock="Right" HorizontalAlignment="Right">
                         Launch
