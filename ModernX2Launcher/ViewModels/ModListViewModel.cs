@@ -165,8 +165,14 @@ public partial class ModListViewModel : ViewModelBase
             .AutoRefreshOnObservable(WhenResortMod) // Note: SuppressRefresh after Sort breaks *all* sorting 
             .SortFixed(listComparerObs)
             .Snapshots()
-            // TODO: How to not fire twice on grouping change? (comparer + description changes)
             .CombineLatest(groupDescriptionObs)
+            
+            // Changing grouping will emit multiple times (at least 1 for resort and 1 for group change)
+            // but we only want the final combination - there is no point in rebuilding the grid with
+            // the intermediary values.
+            // Likewise, when initially discovering mods there is no point in refreshing the grid multiple times per
+            // tick with the newly added mods.
+            .ThrottlePerTick()
             .Subscribe(tuple => SetListContents(tuple.First, tuple.Second));
 
         void SetListContents(IEnumerable<ModEntryViewModel> mods, DataGridGroupDescription? groupDescription)

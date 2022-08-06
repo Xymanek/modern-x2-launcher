@@ -52,4 +52,18 @@ public static class ObservableExtensions
     {
         return source.Select(enumerable => enumerable.Select(selector).ToArray());
     }
+
+    // TODO: unit testing support
+    /// <summary>
+    /// Will throttle until the next UI tick. Useful when a certain action (e.g. button press) causes multiple
+    /// emits to fire synchronously (e.g. due to complex observable pipeline) but only the final one
+    /// is required to be acted upon.
+    /// </summary>
+    /// <remarks>
+    /// Technically the latest throttled value will be propagated when the dispatcher processes the
+    /// <see cref="Avalonia.Threading.DispatcherPriority.DataBind"/> jobs, which can happen during the current
+    /// tick if we are currently processing higher priority jobs.
+    /// </remarks>
+    public static IObservable<T> ThrottlePerTick<T>(this IObservable<T> source) 
+        => source.Throttle(TimeSpan.Zero, NotInlineAvaloniaScheduler.Instance);
 }
