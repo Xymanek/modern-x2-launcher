@@ -1,15 +1,12 @@
 ﻿<UserControl xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:vm="using:ModernX2Launcher.ViewModels"
+             xmlns:dVm="using:ModernX2Launcher.Design.ViewModels"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             d:DataContext="{x:Static dVm:DesignData.ModList}"
              x:Class="ModernX2Launcher.Views.ModListView">
-
-    <Design.DataContext>
-        <vm:DesignTimeModListViewModel />
-    </Design.DataContext>
-
     <DockPanel LastChildFill="True">
 
         <!-- Grouping options -->
@@ -103,5 +100,4 @@
             </DataGrid.Columns>
         </DataGrid>
     </DockPanel>
-
 </UserControl>

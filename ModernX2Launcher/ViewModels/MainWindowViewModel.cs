@@ -18,7 +18,7 @@ public class MainWindowViewModel : ViewModelBase
 
     public MainWindowViewModel()
     {
-        DesignTimeModListViewModel.PopulateDummy(_modList);
+        DummyMods.Populate(_modList);
 
         TestStuff = ReactiveCommand.CreateFromTask(DoTestStuff);
 
