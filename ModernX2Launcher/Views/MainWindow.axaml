@@ -40,13 +40,13 @@
             <Menu Items="{Binding MenuItems}">
                 <Menu.Styles>
                     <Style Selector="MenuItem">
-                        <Setter Property="Header" Value="{Binding Header}"/>
-                        <Setter Property="Icon" Value="{Binding Icon}"/>
-                        
-                        <Setter Property="Command" Value="{Binding Command}"/>
-                        <Setter Property="CommandParameter" Value="{Binding CommandParameter}"/>
-                        
-                        <Setter Property="Items" Value="{Binding Items}"/>
+                        <Setter Property="Header" Value="{Binding Header}" />
+                        <Setter Property="Icon" Value="{Binding Icon}" />
+
+                        <Setter Property="Command" Value="{Binding Command}" />
+                        <Setter Property="CommandParameter" Value="{Binding CommandParameter}" />
+
+                        <Setter Property="Items" Value="{Binding Items}" />
                     </Style>
                 </Menu.Styles>
             </Menu>
@@ -55,17 +55,17 @@
                 <StackPanel Orientation="Horizontal" Margin="3">
 
                     <!-- TODO: the hit test rectangle broke -->
-                    
+
                     <controls:IconStatBlock Icon="Warning" IconForeground="Orange"
                                             Content="1"
                                             IsVisible="True"
                                             ToolTip.Tip="Number of enabled mods with warnings" />
-                    
+
                     <controls:IconStatBlock Icon="Error" IconForeground="Red"
                                             Content="1"
                                             IsVisible="True"
                                             ToolTip.Tip="Number of enabled mods with errors" />
-                    
+
                     <controls:IconStatBlock Icon="CheckBox"
                                             Content="{Binding ModListMode.ModList.EnabledCount}"
                                             ToolTip.Tip="Number of enabled mods" />
@@ -134,15 +134,21 @@
         <!-- An extremely basic separator, should probably come up with something nicer -->
         <Rectangle DockPanel.Dock="Top"
                    Fill="Black" Height="1" Opacity="0.1" />
-        
+
         <!-- Status bar -->
         <Panel DockPanel.Dock="Bottom">
             <Rectangle Fill="{DynamicResource ThemeControlHighlightMidBrush}" />
             <DockPanel Margin="4 2">
-                <TextBlock DockPanel.Dock="Left" Text="Working on xyz..." />
+                <ProgressBar DockPanel.Dock="Left" Margin="0 0 5 0"
+                             IsIndeterminate="True" />
+
+                <!-- <ProgressBar Value="50" ShowProgressText="True"/> -->
+
+                <TextBlock DockPanel.Dock="Left"
+                           Text="Working on xyz..." />
             </DockPanel>
         </Panel>
-        
+
         <SplitView IsPaneOpen="False" DisplayMode="CompactInline"
                    OpenPaneLength="296">
             <SplitView.Pane>
