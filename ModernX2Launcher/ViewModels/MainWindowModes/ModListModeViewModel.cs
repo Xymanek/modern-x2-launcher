@@ -13,18 +13,15 @@ namespace ModernX2Launcher.ViewModels.MainWindowModes;
 
 public class ModListModeViewModel : ViewModelBase, IMainWindowMode
 {
-    private ModListViewModel _modList = new();
-    private ModInfoViewModel _modInfo = new();
-
     public ModListModeViewModel()
     {
-        DummyMods.Populate(_modList);
+        DummyMods.Populate(ModList);
 
         TestStuff = ReactiveCommand.CreateFromTask(DoTestStuff);
 
         this.WhenActivated(disposables =>
         {
-            _modList.SelectedMods.Connect()
+            ModList.SelectedMods.Connect()
                 .Select(GetLastSelectedMod)
                 .WhereNotNull() // Keep last selection
                 .Subscribe(modEntry => ModInfo.ModEntry = modEntry)
@@ -59,17 +56,9 @@ public class ModListModeViewModel : ViewModelBase, IMainWindowMode
         return GetAllAdded().LastOrDefault();
     }
 
-    public ModListViewModel ModList
-    {
-        get => _modList;
-        set => this.RaiseAndSetIfChanged(ref _modList, value);
-    }
+    public ModListViewModel ModList { get; } = new();
 
-    public ModInfoViewModel ModInfo
-    {
-        get => _modInfo;
-        set => this.RaiseAndSetIfChanged(ref _modInfo, value);
-    }
+    public ModInfoViewModel ModInfo { get; } = new();
 
     public ReactiveCommand<Unit, Unit> TestStuff { get; }
 
