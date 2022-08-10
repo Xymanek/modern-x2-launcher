@@ -7,6 +7,7 @@ using System.Reactive.Linq;
 using Avalonia.Collections;
 using DynamicData;
 using DynamicData.Aggregation;
+using Material.Icons;
 using ModernX2Launcher.Utilities;
 using ReactiveUI;
 
@@ -30,6 +31,14 @@ public partial class ModListViewModel : ViewModelBase
                 () => { },
                 IsActive.Select(isActive => !isActive)
             );
+
+            MenuItem = new MenuItemViewModel
+            {
+                Header = label,
+                
+                // No point in disabling the menu item, so a separate command 
+                Command = ReactiveCommand.Create(() => Selected.Execute().Subscribe()),
+            };
         }
 
         public string Label { get; }
@@ -38,6 +47,8 @@ public partial class ModListViewModel : ViewModelBase
         public ReactiveCommand<Unit, Unit> Selected { get; }
 
         public IObservable<bool> IsActive { get; }
+        
+        public MenuItemViewModel MenuItem { get; }
     }
 
     public IReadOnlyList<GroupingOption> GroupingOptions { get; }
@@ -70,12 +81,37 @@ public partial class ModListViewModel : ViewModelBase
         // _selectedGroupingOption is null when existing constructor.
         this.RaisePropertyChanged(nameof(SelectedGroupingOption));
 
+        GroupingMenuItem = new MenuItemViewModel
+        {
+            Header = "Grouping",
+            
+            // TODO: this is hax, but the entire grouping code needs to be redone, especially since
+            // the switch from UI buttons to menu items
+            Items = new IMenuItemViewModel[]
+            {
+                GroupingOptions[0].MenuItem,
+                
+                new MenuItemSeparatorViewModel(),
+                
+                GroupingOptions[1].MenuItem,
+
+                new MenuItemSeparatorViewModel(),
+                
+                GroupingOptions[2].MenuItem,
+                GroupingOptions[3].MenuItem,
+            }
+        };
+        
         this.WhenActivated(disposable =>
         {
             foreach (GroupingOption groupingOption in GroupingOptions)
             {
                 groupingOption.Selected
                     .Subscribe(_ => SelectedGroupingOption = groupingOption)
+                    .DisposeWith(disposable);
+                
+                groupingOption.IsActive
+                    .Subscribe(isActive => groupingOption.MenuItem.Icon = isActive ? MaterialIconKind.Tick : null)
                     .DisposeWith(disposable);
             }
 
@@ -224,4 +260,6 @@ public partial class ModListViewModel : ViewModelBase
     public int EnabledCount => _enabledCount.Value;
 
     public int PostFilterCount => _currentDisplayedMods.Count;
+    
+    public IMenuItemViewModel GroupingMenuItem { get; }
 }

@@ -36,18 +36,7 @@ public class ModListModeViewModel : ViewModelBase, IMainWindowMode
                 Header = "Mod _List",
                 Items = new[]
                 {
-                    new MenuItemViewModel
-                    {
-                        Header = "_Grouping",
-                        Items = new IMenuItemViewModel[]
-                        {
-                            new MenuItemViewModel { Header = "Disabled" },
-                            
-                            new MenuItemSeparatorViewModel(),
-                    
-                            new MenuItemViewModel { Header = "Based on sort", Icon = MaterialIconKind.Tick },
-                        }
-                    },
+                    ModList.GroupingMenuItem,
                 }
             },
         });
