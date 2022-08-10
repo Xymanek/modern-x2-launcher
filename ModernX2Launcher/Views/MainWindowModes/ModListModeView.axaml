@@ -1,0 +1,31 @@
+﻿<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vmModes="using:ModernX2Launcher.ViewModels.MainWindowModes"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             x:Class="ModernX2Launcher.Views.MainWindowModes.ModListModeView">
+    <Design.DataContext>
+        <vmModes:ModListModeViewModel />
+    </Design.DataContext>
+    
+    <DockPanel LastChildFill="True">
+        <!--<Button Command="{Binding TestStuff}" DockPanel.Dock="Top">
+            Test stuff
+        </Button>-->
+
+        <Grid Margin="5">
+            <Grid.RowDefinitions>
+                <RowDefinition MinHeight="150" />
+                <RowDefinition Height="4" />
+                <RowDefinition MinHeight="200" />
+            </Grid.RowDefinitions>
+
+            <ContentControl Content="{Binding ModList}"
+                            Grid.Row="0" Padding="0 0 0 4" />
+            <GridSplitter Grid.Row="1" ResizeDirection="Rows" />
+            <ContentControl Content="{Binding ModInfo}"
+                            Grid.Row="2" Padding="0 4 0 0" />
+        </Grid>
+    </DockPanel>
+</UserControl>

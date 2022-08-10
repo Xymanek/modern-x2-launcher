@@ -65,11 +65,11 @@
                                             ToolTip.Tip="Number of enabled mods with errors" />
                     
                     <controls:IconStatBlock Icon="CheckBox"
-                                            Content="{Binding ModList.EnabledCount}"
+                                            Content="{Binding ModListMode.ModList.EnabledCount}"
                                             ToolTip.Tip="Number of enabled mods" />
 
                     <controls:IconStatBlock Icon="FormatListBulletedSquare"
-                                            Content="{Binding ModList.Mods.CountChanged^}"
+                                            Content="{Binding ModListMode.ModList.Mods.CountChanged^}"
                                             ToolTip.Tip="Total number of mods (that MXL is aware of)" />
 
                     <ComboBox SelectedIndex="0"
@@ -144,25 +144,7 @@
                 </StackPanel>
             </SplitView.Pane>
 
-            <DockPanel LastChildFill="True">
-                <!--<Button Command="{Binding TestStuff}" DockPanel.Dock="Top">
-                    Test stuff
-                </Button>-->
-
-                <Grid Margin="5">
-                    <Grid.RowDefinitions>
-                        <RowDefinition MinHeight="150" />
-                        <RowDefinition Height="4" />
-                        <RowDefinition MinHeight="200" />
-                    </Grid.RowDefinitions>
-
-                    <ContentControl Content="{Binding ModList}"
-                                    Grid.Row="0" Padding="0 0 0 4" />
-                    <GridSplitter Grid.Row="1" ResizeDirection="Rows" />
-                    <ContentControl Content="{Binding ModInfo}"
-                                    Grid.Row="2" Padding="0 4 0 0" />
-                </Grid>
-            </DockPanel>
+            <ContentControl Content="{Binding ModListMode}" />
         </SplitView>
 
     </DockPanel>
