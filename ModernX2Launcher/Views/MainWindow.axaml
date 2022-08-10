@@ -37,16 +37,18 @@
                 </Style>
             </DockPanel.Styles>
 
-            <Menu DockPanel.Dock="Left">
-                <MenuItem Header="_File">
-                    <MenuItem Header="_Open..." />
-                    <Separator />
-                    <MenuItem Header="_Exit" />
-                </MenuItem>
-                <MenuItem Header="_Edit">
-                    <MenuItem Header="Copy" />
-                    <MenuItem Header="Paste" />
-                </MenuItem>
+            <Menu Items="{Binding MenuItems}">
+                <Menu.Styles>
+                    <Style Selector="MenuItem">
+                        <Setter Property="Header" Value="{Binding Header}"/>
+                        <Setter Property="Icon" Value="{Binding Icon}"/>
+                        
+                        <Setter Property="Command" Value="{Binding Command}"/>
+                        <Setter Property="CommandParameter" Value="{Binding CommandParameter}"/>
+                        
+                        <Setter Property="Items" Value="{Binding Items}"/>
+                    </Style>
+                </Menu.Styles>
             </Menu>
 
             <Panel DockPanel.Dock="Right" HorizontalAlignment="Right">

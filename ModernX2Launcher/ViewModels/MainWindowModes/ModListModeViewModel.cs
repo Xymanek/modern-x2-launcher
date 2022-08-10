@@ -6,6 +6,7 @@ using System.Reactive.Disposables;
 using System.Reactive.Linq;
 using System.Threading.Tasks;
 using DynamicData;
+using Material.Icons;
 using ModernX2Launcher.ModDiscovery;
 using ReactiveUI;
 
@@ -26,6 +27,29 @@ public class ModListModeViewModel : ViewModelBase, IMainWindowMode
                 .WhereNotNull() // Keep last selection
                 .Subscribe(modEntry => ModInfo.ModEntry = modEntry)
                 .DisposeWith(disposables);
+        });
+
+        AdditionalMenuItems = Observable.Return(new[]
+        {
+            new MenuItemViewModel
+            {
+                Header = "Mod _List",
+                Items = new[]
+                {
+                    new MenuItemViewModel
+                    {
+                        Header = "_Grouping",
+                        Items = new IMenuItemViewModel[]
+                        {
+                            new MenuItemViewModel { Header = "Disabled" },
+                            
+                            new MenuItemSeparatorViewModel(),
+                    
+                            new MenuItemViewModel { Header = "Based on sort", Icon = MaterialIconKind.Tick },
+                        }
+                    },
+                }
+            },
         });
     }
 
@@ -70,4 +94,6 @@ public class ModListModeViewModel : ViewModelBase, IMainWindowMode
             "C:\\Steam\\steamapps\\common\\XCOM 2\\XCom2-WarOfTheChosen\\XComGame\\Mods"
         );
     }
+
+    public IObservable<IReadOnlyList<IMenuItemViewModel>?> AdditionalMenuItems { get; }
 }

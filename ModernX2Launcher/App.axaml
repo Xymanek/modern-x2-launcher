@@ -3,6 +3,7 @@
              xmlns:local="using:ModernX2Launcher"
              x:Class="ModernX2Launcher.App">
     <Application.DataTemplates>
+        <local:MaterialIconViewLocation />
         <local:ViewLocator/>
     </Application.DataTemplates>
 
