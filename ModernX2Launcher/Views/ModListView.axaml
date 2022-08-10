@@ -2,6 +2,8 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:vm="using:ModernX2Launcher.ViewModels"
              xmlns:dVm="using:ModernX2Launcher.Design.ViewModels"
+             xmlns:controls="clr-namespace:ModernX2Launcher.Views.Controls"
+             xmlns:mi="clr-namespace:Material.Icons.Avalonia;assembly=Material.Icons.Avalonia"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
@@ -9,11 +11,23 @@
              x:Class="ModernX2Launcher.Views.ModListView">
     <DockPanel LastChildFill="True">
 
-        <!-- Grouping options -->
+        <!-- Grouping options (will become filtering instead) -->
         <DockPanel DockPanel.Dock="Top" LastChildFill="True">
+            <DockPanel.Styles>
+                <Style Selector="controls|IconStatBlock /template/ mi|MaterialIcon">
+                    <Setter Property="Height" Value="20" />
+                    <Setter Property="Width" Value="20" />
+                </Style>
+            </DockPanel.Styles>
+
             <TextBlock Text="Grouping:"
                        DockPanel.Dock="Left" VerticalAlignment="Center"
                        Margin="0 0 5 0" />
+
+            <controls:IconStatBlock DockPanel.Dock="Right" HorizontalContentAlignment="Right"
+                                    Icon="FilterVariant"
+                                    Content="{Binding PostFilterCount}"
+                                    ToolTip.Tip="Number of displayed mods (after filtering)" />
 
             <ItemsControl Items="{Binding GroupingOptions}">
                 <ItemsControl.Styles>

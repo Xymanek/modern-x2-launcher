@@ -19,18 +19,20 @@
                 <Panel>
                     <!-- For tooltip hit test -->
                     <Rectangle />
-                    
+
                     <StackPanel Orientation="Horizontal">
-                        <mi:MaterialIcon Kind="{TemplateBinding Icon}" />
+                        <mi:MaterialIcon Kind="{TemplateBinding Icon}"
+                                         Foreground="{TemplateBinding IconForeground}" />
+
                         <ContentPresenter Name="PART_ContentPresenter"
                                           Content="{TemplateBinding Content}"
-                                          ContentTemplate="{TemplateBinding ContentTemplate}"/>
+                                          ContentTemplate="{TemplateBinding ContentTemplate}" />
                     </StackPanel>
                 </Panel>
             </ControlTemplate>
         </Setter>
     </Style>
-    
+
     <Style Selector="controls|IconStatBlock /template/ mi|MaterialIcon">
         <Setter Property="Margin" Value="0 0 2 0" />
     </Style>
