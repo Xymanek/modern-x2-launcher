@@ -17,63 +17,62 @@
 
     <DockPanel LastChildFill="True">
 
-        <Menu DockPanel.Dock="Top">
-            <MenuItem Header="_File">
-                <MenuItem Header="_Open..." />
-                <Separator />
-                <MenuItem Header="_Exit" />
-            </MenuItem>
-            <MenuItem Header="_Edit">
-                <MenuItem Header="Copy" />
-                <MenuItem Header="Paste" />
-            </MenuItem>
-        </Menu>
+        <DockPanel DockPanel.Dock="Top">
+            <DockPanel.Styles>
+                <Style Selector="Menu > MenuItem /template/ ContentPresenter">
+                    <Setter Property="VerticalContentAlignment" Value="Center" />
+                </Style>
 
-        <SplitView IsPaneOpen="False" DisplayMode="CompactInline"
-                   OpenPaneLength="296">
-            <SplitView.Pane>
-                <StackPanel>
-                    <controls:MainWindowModeButton ModeName="Mods" Icon="FormatListChecks" />
-                    <controls:MainWindowModeButton ModeName="Overrides" Icon="AlertRhombusOutline" />
-                    <controls:MainWindowModeButton ModeName="Mod updates" Icon="Update" />
-                    <controls:MainWindowModeButton ModeName="Profile management" Icon="TextBoxMultipleOutline" />
-                </StackPanel>
-            </SplitView.Pane>
+                <Style Selector="controls|IconStatBlock">
+                    <Setter Property="Margin" Value="0 0 10 0" />
+                </Style>
 
-            <DockPanel LastChildFill="True">
-                <DockPanel DockPanel.Dock="Top" Margin="3">
-                    <DockPanel.Styles>
-                        <Style Selector="controls|IconStatBlock">
-                            <Setter Property="Margin" Value="0 0 10 0" />
-                        </Style>
+                <Style Selector="controls|IconStatBlock /template/ mi|MaterialIcon">
+                    <Setter Property="Height" Value="20" />
+                    <Setter Property="Width" Value="20" />
+                </Style>
+            </DockPanel.Styles>
 
-                        <Style Selector="controls|IconStatBlock /template/ mi|MaterialIcon">
-                            <Setter Property="Height" Value="20" />
-                            <Setter Property="Width" Value="20" />
-                        </Style>
-                    </DockPanel.Styles>
+            <Menu DockPanel.Dock="Left">
+                <MenuItem Header="_File">
+                    <MenuItem Header="_Open..." />
+                    <Separator />
+                    <MenuItem Header="_Exit" />
+                </MenuItem>
+                <MenuItem Header="_Edit">
+                    <MenuItem Header="Copy" />
+                    <MenuItem Header="Paste" />
+                </MenuItem>
+            </Menu>
 
-                    <controls:IconStatBlock DockPanel.Dock="Left"
-                                            Icon="CheckBox"
+            <Panel DockPanel.Dock="Right" HorizontalAlignment="Right">
+                <StackPanel Orientation="Horizontal" Margin="3">
+
+                    <!-- TODO: the hit test rectangle broke -->
+                    <controls:IconStatBlock Icon="CheckBox"
                                             Content="{Binding ModList.EnabledCount}"
                                             ToolTip.Tip="Number of enabled mods" />
 
-                    <controls:IconStatBlock DockPanel.Dock="Left"
+                    <!--<controls:IconStatBlock DockPanel.Dock="Left"
                                             Icon="FilterVariant"
                                             Content="{Binding ModList.PostFilterCount}"
-                                            ToolTip.Tip="Number of displayed mods (after filtering)" />
+                                            ToolTip.Tip="Number of displayed mods (after filtering)" />-->
 
-                    <controls:IconStatBlock DockPanel.Dock="Left"
-                                            Icon="FormatListBulletedSquare"
+                    <controls:IconStatBlock Icon="FormatListBulletedSquare"
                                             Content="{Binding ModList.Mods.CountChanged^}"
                                             ToolTip.Tip="Total number of mods (that MXL is aware of)" />
 
-                    <Button DockPanel.Dock="Right" HorizontalAlignment="Right">
-                        Launch
-                    </Button>
+                    <ComboBox SelectedIndex="0"
+                              Margin="0 0 5 0"
+                              ToolTip.Tip="Active profile">
+                        <ComboBoxItem>Default</ComboBoxItem>
+                        <ComboBoxItem>Inline Item 2</ComboBoxItem>
+                        <ComboBoxItem>Inline Item 3</ComboBoxItem>
+                        <ComboBoxItem>Inline Item 4</ComboBoxItem>
+                    </ComboBox>
 
                     <!-- ComboBox-like styled Button. TODO: Make ComboBoxFlyout -->
-                    <Button DockPanel.Dock="Right" HorizontalAlignment="Right" Margin="0 0 5 0"
+                    <Button Margin="0 0 5 0"
                             Background="Transparent" BorderBrush="{DynamicResource ThemeBorderMidBrush}">
 
                         <!--<Button.Styles>
@@ -112,17 +111,26 @@
                         </Button.Flyout>
                     </Button>
 
-                    <ComboBox SelectedIndex="0"
-                              DockPanel.Dock="Right" HorizontalAlignment="Right" Margin="0 0 5 0"
-                              ToolTip.Tip="Active profile">
-                        <ComboBoxItem>Default</ComboBoxItem>
-                        <ComboBoxItem>Inline Item 2</ComboBoxItem>
-                        <ComboBoxItem>Inline Item 3</ComboBoxItem>
-                        <ComboBoxItem>Inline Item 4</ComboBoxItem>
-                    </ComboBox>
+                    <Button>
+                        Launch
+                    </Button>
 
-                </DockPanel>
+                </StackPanel>
+            </Panel>
+        </DockPanel>
 
+        <SplitView IsPaneOpen="False" DisplayMode="CompactInline"
+                   OpenPaneLength="296">
+            <SplitView.Pane>
+                <StackPanel>
+                    <controls:MainWindowModeButton ModeName="Mods" Icon="FormatListChecks" />
+                    <controls:MainWindowModeButton ModeName="Overrides" Icon="AlertRhombusOutline" />
+                    <controls:MainWindowModeButton ModeName="Mod updates" Icon="Update" />
+                    <controls:MainWindowModeButton ModeName="Profile management" Icon="TextBoxMultipleOutline" />
+                </StackPanel>
+            </SplitView.Pane>
+
+            <DockPanel LastChildFill="True">
                 <!--<Button Command="{Binding TestStuff}" DockPanel.Dock="Top">
                     Test stuff
                 </Button>-->
