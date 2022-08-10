@@ -11,32 +11,55 @@
              x:Class="ModernX2Launcher.Views.ModListView">
     <DockPanel LastChildFill="True">
 
-        <!-- Grouping options (will become filtering instead) -->
+        <!-- Filtering options -->
         <DockPanel DockPanel.Dock="Top" LastChildFill="True">
             <DockPanel.Styles>
                 <Style Selector="controls|IconStatBlock /template/ mi|MaterialIcon">
                     <Setter Property="Height" Value="20" />
                     <Setter Property="Width" Value="20" />
                 </Style>
+
+                <!--
+                    This is weird, but I can't find a way to detect why WrapPanel children are first/last per row,
+                    so each filter gets right/down margin which should account for spacing between items themselves
+                    and between the items and grid without any excessive spacing anywhere 
+                -->
+                <Style Selector="#FiltersContainer > TextBox, #FiltersContainer > Button">
+                    <Setter Property="Margin" Value="0 0 5 5" />
+                </Style>
             </DockPanel.Styles>
 
-            <TextBlock Text="Grouping:"
-                       DockPanel.Dock="Left" VerticalAlignment="Center"
-                       Margin="0 0 5 0" />
-
-            <controls:IconStatBlock DockPanel.Dock="Right" HorizontalContentAlignment="Right"
+            <!--
+                The margin is to keep in center with visual filters' positions.
+                Should probably use absolute vertical offset to better handle multiple lines of filters  
+            -->
+            <controls:IconStatBlock DockPanel.Dock="Right" Margin="0 0 0 5"
                                     Icon="FilterVariant"
                                     Content="{Binding PostFilterCount}"
                                     ToolTip.Tip="Number of displayed mods (after filtering)" />
 
+            <WrapPanel Name="FiltersContainer">
+                <TextBox MinWidth="150" MaxWidth="200"
+                         Watermark="Search by name"
+                         Classes="clearButton" />
+
+                <Button>
+                    <mi:MaterialIcon Kind="FilterPlus" />
+                </Button>
+            </WrapPanel>
+
+            <!--<TextBlock Text="Grouping:"
+                       DockPanel.Dock="Left" VerticalAlignment="Center"
+                       Margin="0 0 5 0" />
+
             <ItemsControl Items="{Binding GroupingOptions}">
                 <ItemsControl.Styles>
-                    <!-- Not the nicest approach, but good enough for now -->
+                    ~1~ Not the nicest approach, but good enough for now @1@
                     <Style Selector="Button">
                         <Setter Property="Margin" Value="3" />
                     </Style>
 
-                    <!-- Don't appear disabled when currently selected -->
+                    ~1~ Don't appear disabled when currently selected @1@
                     <Style Selector="Button.activeGroupingMode">
                         <Setter Property="Opacity" Value="1" />
                     </Style>
@@ -60,7 +83,7 @@
                         </Button>
                     </DataTemplate>
                 </ItemsControl.ItemTemplate>
-            </ItemsControl>
+            </ItemsControl>-->
 
         </DockPanel>
 
