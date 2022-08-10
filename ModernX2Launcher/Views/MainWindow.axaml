@@ -17,6 +17,14 @@
     </Design.DataContext>
 
     <DockPanel LastChildFill="True">
+        
+        <DockPanel.Styles>
+            <!-- Only direct children on purpose -->
+            <Style Selector="#ModeTabControl > TabItem">
+                <Setter Property="Padding" Value="0" />
+                <Setter Property="HorizontalContentAlignment" Value="Stretch"></Setter>
+            </Style>
+        </DockPanel.Styles>
 
         <DockPanel DockPanel.Dock="Top">
             <DockPanel.Styles>
@@ -150,7 +158,8 @@
             </DockPanel>
         </Panel>
 
-        <TabControl Items="{Binding Modes}" SelectedItem="{Binding ActiveMode}"
+        <TabControl Name="ModeTabControl"
+                    Items="{Binding Modes}" SelectedItem="{Binding ActiveMode}"
                     Padding="0" ItemsPanel="{x:Static views:MainWindow.ModesPanel}">
             <TabControl.Template>
                 <ControlTemplate>
@@ -176,6 +185,7 @@
             <TabControl.ItemTemplate>
                 <DataTemplate>
                     <Panel ToolTip.Tip="{Binding ModeName}">
+                        <Rectangle />
                         <mi:MaterialIcon Kind="{Binding ModeIcon}" Foreground="Black"
                                          HorizontalAlignment="Center" Margin="0 12"
                                          Width="23" Height="23" />
@@ -190,13 +200,6 @@
                     </Panel>
                 </DataTemplate>
             </TabControl.ContentTemplate>
-
-            <TabControl.Styles>
-                <Style Selector="TabItem">
-                    <Setter Property="Padding" Value="0" />
-                    <Setter Property="HorizontalContentAlignment" Value="Stretch"></Setter>
-                </Style>
-            </TabControl.Styles>
         </TabControl>
 
     </DockPanel>
