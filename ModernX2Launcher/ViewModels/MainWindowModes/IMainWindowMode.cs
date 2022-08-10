@@ -10,5 +10,5 @@ public interface IMainWindowMode
     
     MaterialIconKind ModeIcon { get; }
     
-    IObservable<IReadOnlyList<IMenuItemViewModel>?> AdditionalMenuItems { get; }
+    IObservable<IReadOnlyList<IMenuItemViewModel>> AdditionalMenuItems { get; }
 }

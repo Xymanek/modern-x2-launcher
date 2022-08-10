@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Reactive.Linq;
 using ModernX2Launcher.Utilities;
@@ -20,7 +21,21 @@ public class MainWindowViewModel : ViewModelBase
         _activeMode = ModListMode;
         this.RaisePropertyChanged(nameof(ActiveMode));
 
-        IMenuItemViewModel[] commonMenuItems =
+        IMenuItemViewModel[] commonMenuItems = CreateCommonMenuItems();
+
+        _menuItems = this.WhenAnyValue(m => m.ActiveMode)
+            .Select(
+                mode => mode.AdditionalMenuItems
+                    .DefaultIfEmpty(Array.Empty<IMenuItemViewModel>())
+            )
+            .Switch()
+            .Select(additionalItems => commonMenuItems.Concat(additionalItems).ToReadOnlyList())
+            .ToProperty(this, nameof(MenuItems));
+    }
+
+    private IMenuItemViewModel[] CreateCommonMenuItems()
+    {
+        return new IMenuItemViewModel[] 
         {
             new MenuItemViewModel
             {
@@ -44,21 +59,6 @@ public class MainWindowViewModel : ViewModelBase
                 }
             }
         };
-
-        // TODO: connect to mode switching
-        _menuItems = ModListMode.AdditionalMenuItems
-            .Select(additionalItems =>
-            {
-                IEnumerable<IMenuItemViewModel> finalItems = commonMenuItems;
-
-                if (additionalItems != null)
-                {
-                    finalItems = finalItems.Concat(additionalItems);
-                }
-
-                return finalItems.ToReadOnlyList();
-            })
-            .ToProperty(this, nameof(MenuItems));
     }
 
     private readonly ObservableAsPropertyHelper<IReadOnlyList<IMenuItemViewModel>> _menuItems;

@@ -98,5 +98,5 @@ public class ModListModeViewModel : ViewModelBase, IMainWindowMode
     public string ModeName => "Mods";
     public MaterialIconKind ModeIcon => MaterialIconKind.FormatListChecks;
 
-    public IObservable<IReadOnlyList<IMenuItemViewModel>?> AdditionalMenuItems { get; }
+    public IObservable<IReadOnlyList<IMenuItemViewModel>> AdditionalMenuItems { get; }
 }
