@@ -15,7 +15,9 @@ public class MainWindowViewModel : ViewModelBase
         Modes = new IMainWindowMode[]
         {
             ModListMode,
-            ProfileMode
+            OverridesMode,
+            UpdatesMode,
+            ProfileMode,
         };
 
         _activeMode = ModListMode;
@@ -65,6 +67,8 @@ public class MainWindowViewModel : ViewModelBase
     public IReadOnlyList<IMenuItemViewModel> MenuItems => _menuItems.Value;
 
     public ModListModeViewModel ModListMode { get; } = new();
+    public OverridesModeViewModel OverridesMode { get; } = new();
+    public UpdatesModeViewModel UpdatesMode { get; } = new();
     public ProfileModeViewModel ProfileMode { get; } = new();
 
     public IReadOnlyList<IMainWindowMode> Modes { get; }
