@@ -1,7 +1,6 @@
 <Window xmlns="https://github.com/avaloniaui"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:vm="using:ModernX2Launcher.ViewModels"
-        xmlns:views="clr-namespace:ModernX2Launcher.Views"
         xmlns:controls="clr-namespace:ModernX2Launcher.Views.Controls"
         xmlns:mi="clr-namespace:Material.Icons.Avalonia;assembly=Material.Icons.Avalonia"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
@@ -160,7 +159,13 @@
 
         <TabControl Name="ModeTabControl"
                     Items="{Binding Modes}" SelectedItem="{Binding ActiveMode}"
-                    Padding="0" ItemsPanel="{x:Static views:MainWindow.ModesPanel}">
+                    Padding="0">
+            <TabControl.ItemsPanel>
+                <ItemsPanelTemplate>
+                    <StackPanel Orientation="Vertical" />
+                </ItemsPanelTemplate>
+            </TabControl.ItemsPanel>
+            
             <TabControl.Template>
                 <ControlTemplate>
                     <SplitView IsPaneOpen="False" DisplayMode="CompactInline"
