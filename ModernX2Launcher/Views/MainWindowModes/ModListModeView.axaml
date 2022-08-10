@@ -18,7 +18,7 @@
             <Grid.RowDefinitions>
                 <RowDefinition MinHeight="150" />
                 <RowDefinition Height="4" />
-                <RowDefinition MinHeight="200" />
+                <RowDefinition MinHeight="150" MaxHeight="300" />
             </Grid.RowDefinitions>
 
             <ContentControl Content="{Binding ModList}"

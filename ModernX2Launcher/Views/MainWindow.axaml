@@ -135,6 +135,14 @@
         <Rectangle DockPanel.Dock="Top"
                    Fill="Black" Height="1" Opacity="0.1" />
         
+        <!-- Status bar -->
+        <Panel DockPanel.Dock="Bottom">
+            <Rectangle Fill="{DynamicResource ThemeControlHighlightMidBrush}" />
+            <DockPanel Margin="4 2">
+                <TextBlock DockPanel.Dock="Left" Text="Working on xyz..." />
+            </DockPanel>
+        </Panel>
+        
         <SplitView IsPaneOpen="False" DisplayMode="CompactInline"
                    OpenPaneLength="296">
             <SplitView.Pane>
