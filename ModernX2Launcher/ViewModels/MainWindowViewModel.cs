@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using System.Reactive.Linq;
+using ModernX2Launcher.Utilities;
 using ModernX2Launcher.ViewModels.MainWindowModes;
 using ReactiveUI;
 
@@ -10,6 +11,15 @@ public class MainWindowViewModel : ViewModelBase
 {
     public MainWindowViewModel()
     {
+        Modes = new IMainWindowMode[]
+        {
+            ModListMode,
+            ProfileMode
+        };
+
+        _activeMode = ModListMode;
+        this.RaisePropertyChanged(nameof(ActiveMode));
+
         IMenuItemViewModel[] commonMenuItems =
         {
             new MenuItemViewModel
@@ -18,9 +28,9 @@ public class MainWindowViewModel : ViewModelBase
                 Items = new IMenuItemViewModel[]
                 {
                     new MenuItemViewModel { Header = "_Open..." },
-                    
+
                     new MenuItemSeparatorViewModel(),
-                    
+
                     new MenuItemViewModel { Header = "_Exit" },
                 }
             },
@@ -46,13 +56,24 @@ public class MainWindowViewModel : ViewModelBase
                     finalItems = finalItems.Concat(additionalItems);
                 }
 
-                return (IReadOnlyList<IMenuItemViewModel>) finalItems.ToArray();
+                return finalItems.ToReadOnlyList();
             })
             .ToProperty(this, nameof(MenuItems));
     }
 
     private readonly ObservableAsPropertyHelper<IReadOnlyList<IMenuItemViewModel>> _menuItems;
     public IReadOnlyList<IMenuItemViewModel> MenuItems => _menuItems.Value;
-    
+
     public ModListModeViewModel ModListMode { get; } = new();
+    public ProfileModeViewModel ProfileMode { get; } = new();
+
+    public IReadOnlyList<IMainWindowMode> Modes { get; }
+
+    private IMainWindowMode _activeMode;
+
+    public IMainWindowMode ActiveMode
+    {
+        get => _activeMode;
+        set => this.RaiseAndSetIfChanged(ref _activeMode, value);
+    }
 }

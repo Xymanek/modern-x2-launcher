@@ -12,4 +12,10 @@ public static class EnumerableExtensions
     {
         return source.Where(item => item is not null)!;
     }
+
+    public static IReadOnlyList<T> ToReadOnlyList<T>(this IEnumerable<T> source)
+    {
+        // TODO: wrap so cannot be downcasted
+        return source.ToArray();
+    }
 }

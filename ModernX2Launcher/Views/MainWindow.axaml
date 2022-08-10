@@ -1,6 +1,7 @@
 <Window xmlns="https://github.com/avaloniaui"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:vm="using:ModernX2Launcher.ViewModels"
+        xmlns:views="clr-namespace:ModernX2Launcher.Views"
         xmlns:controls="clr-namespace:ModernX2Launcher.Views.Controls"
         xmlns:mi="clr-namespace:Material.Icons.Avalonia;assembly=Material.Icons.Avalonia"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
@@ -149,7 +150,56 @@
             </DockPanel>
         </Panel>
 
-        <SplitView IsPaneOpen="False" DisplayMode="CompactInline"
+        <TabControl Items="{Binding Modes}" SelectedItem="{Binding ActiveMode}"
+                    Padding="0" ItemsPanel="{x:Static views:MainWindow.ModesPanel}">
+            <TabControl.Template>
+                <ControlTemplate>
+                    <SplitView IsPaneOpen="False" DisplayMode="CompactInline"
+                               OpenPaneLength="296">
+                        <SplitView.Pane>
+                            <ItemsPresenter Name="PART_ItemsPresenter"
+                                            ItemTemplate="{TemplateBinding ItemTemplate}"
+                                            Items="{TemplateBinding Items}"
+                                            ItemsPanel="{TemplateBinding ItemsPanel}" />
+                        </SplitView.Pane>
+
+                        <ContentPresenter Name="PART_SelectedContentHost"
+                                          Margin="{TemplateBinding Padding}"
+                                          HorizontalContentAlignment="{TemplateBinding HorizontalContentAlignment}"
+                                          VerticalContentAlignment="{TemplateBinding VerticalContentAlignment}"
+                                          Content="{TemplateBinding SelectedContent}"
+                                          ContentTemplate="{TemplateBinding SelectedContentTemplate}" />
+                    </SplitView>
+                </ControlTemplate>
+            </TabControl.Template>
+
+            <TabControl.ItemTemplate>
+                <DataTemplate>
+                    <Panel ToolTip.Tip="{Binding ModeName}">
+                        <mi:MaterialIcon Kind="{Binding ModeIcon}" Foreground="Black"
+                                         HorizontalAlignment="Center" Margin="0 12"
+                                         Width="23" Height="23" />
+                    </Panel>
+                </DataTemplate>
+            </TabControl.ItemTemplate>
+
+            <TabControl.ContentTemplate>
+                <DataTemplate>
+                    <Panel>
+                        <ContentControl Margin="5" Content="{Binding}" />
+                    </Panel>
+                </DataTemplate>
+            </TabControl.ContentTemplate>
+
+            <TabControl.Styles>
+                <Style Selector="TabItem">
+                    <Setter Property="Padding" Value="0" />
+                    <Setter Property="HorizontalContentAlignment" Value="Stretch"></Setter>
+                </Style>
+            </TabControl.Styles>
+        </TabControl>
+
+        <!--<SplitView IsPaneOpen="False" DisplayMode="CompactInline"
                    OpenPaneLength="296">
             <SplitView.Pane>
                 <StackPanel>
@@ -161,7 +211,7 @@
             </SplitView.Pane>
 
             <ContentControl Content="{Binding ModListMode}" />
-        </SplitView>
+        </SplitView>-->
 
     </DockPanel>
 </Window>

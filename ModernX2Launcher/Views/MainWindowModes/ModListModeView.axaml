@@ -14,7 +14,7 @@
             Test stuff
         </Button>-->
 
-        <Grid Margin="5">
+        <Grid>
             <Grid.RowDefinitions>
                 <RowDefinition MinHeight="150" />
                 <RowDefinition Height="4" />
