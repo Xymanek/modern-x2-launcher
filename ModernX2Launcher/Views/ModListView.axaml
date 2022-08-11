@@ -141,6 +141,21 @@
                   LoadingRow="DataGrid_OnLoadingRow"
                   SelectionChanged="DataGrid_OnSelectionChanged">
             <DataGrid.Styles>
+                
+                <!--
+                    Note: the context menu doesn't work on the empty space between the last column and the
+                    right edge of the datagrid. That space is technically a column header, but it's IsEnabled = false
+                    (which I assume prevents the right click handlers from firing)  
+                -->
+                <Style Selector="DataGridColumnHeader">
+                    <Setter Property="ContextMenu">
+                        <ContextMenu>
+                            <MenuItem Header="Author" Command="{Binding ToggleColumnVisibilityAuthor}" />
+                            <MenuItem Header="2" />
+                        </ContextMenu>
+                    </Setter>
+                </Style>
+
                 <Style Selector="DataGridRowGroupHeader">
                     <Setter Property="IsItemCountVisible" Value="True"></Setter>
                 </Style>
@@ -179,7 +194,8 @@
 
                 <DataGridTextColumn Header="Title" Binding="{Binding Title}" />
                 <DataGridTextColumn Header="Category" Binding="{Binding Category}" />
-                <DataGridTextColumn Header="Author" Binding="{Binding Author}" />
+                <DataGridTextColumn Header="Author" Binding="{Binding Author}"
+                                    IsVisible="{Binding ColumnVisibleAuthor}" />
             </DataGrid.Columns>
         </DataGrid>
     </DockPanel>
