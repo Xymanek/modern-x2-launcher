@@ -24,8 +24,39 @@
                     so each filter gets right/down margin which should account for spacing between items themselves
                     and between the items and grid without any excessive spacing anywhere 
                 -->
-                <Style Selector="#FiltersContainer > TextBox, #FiltersContainer > Button">
+                <Style Selector="#FiltersContainer > :is(Control)">
                     <Setter Property="Margin" Value="0 0 5 5" />
+                </Style>
+
+                <Style Selector="Border.flexibleFilterItem">
+                    <Setter Property="BorderBrush" Value="{DynamicResource ThemeBorderLowBrush}" />
+                    <Setter Property="BorderThickness" Value="{DynamicResource ThemeBorderThickness}" />
+
+                    <Setter Property="Background" Value="{DynamicResource ThemeControlMidBrush}" />
+                </Style>
+
+                <Style Selector="Border.flexibleFilterItem > StackPanel > TextBlock">
+                    <Setter Property="VerticalAlignment" Value="Center" />
+                    <Setter Property="Margin" Value="2 0 5 0" />
+                </Style>
+
+                <Style Selector="Border.flexibleFilterItem > StackPanel > Button">
+                    <Setter Property="VerticalAlignment" Value="Stretch" />
+                    <Setter Property="Padding" Value="1 0" />
+                    <Setter Property="BorderBrush" Value="{x:Null}" />
+                    <Setter Property="Background" Value="{x:Null}" />
+                </Style>
+
+                <Style
+                    Selector="Border.flexibleFilterItem > StackPanel > Button:pointerover /template/ ContentPresenter#PART_ContentPresenter">
+                    <Setter Property="BorderBrush" Value="{x:Null}" />
+                    <Setter Property="Background" Value="{DynamicResource ThemeControlHighlightMidBrush}" />
+                </Style>
+
+                <Style
+                    Selector="Border.flexibleFilterItem > StackPanel > Button:pressed /template/ ContentPresenter#PART_ContentPresenter">
+                    <Setter Property="BorderBrush" Value="{x:Null}" />
+                    <Setter Property="Background" Value="{DynamicResource ThemeControlHighlightHighBrush}" />
                 </Style>
             </DockPanel.Styles>
 
@@ -43,6 +74,20 @@
                          Text="{Binding NameFilterValue}"
                          Watermark="Search by name"
                          Classes="clearButton" />
+
+                <Border Classes="flexibleFilterItem">
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="IS Hidden" />
+
+                        <Button>
+                            <mi:MaterialIcon Kind="Edit" />
+                        </Button>
+
+                        <Button>
+                            <mi:MaterialIcon Kind="Delete" />
+                        </Button>
+                    </StackPanel>
+                </Border>
 
                 <Button>
                     <mi:MaterialIcon Kind="FilterPlus" />
