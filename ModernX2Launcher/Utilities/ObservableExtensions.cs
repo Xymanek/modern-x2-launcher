@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reactive.Disposables;
 using System.Reactive.Linq;
+using System.Reactive.Subjects;
 
 namespace ModernX2Launcher.Utilities;
 
@@ -64,6 +66,29 @@ public static class ObservableExtensions
     /// <see cref="Avalonia.Threading.DispatcherPriority.DataBind"/> jobs, which can happen during the current
     /// tick if we are currently processing higher priority jobs.
     /// </remarks>
-    public static IObservable<T> ThrottlePerTick<T>(this IObservable<T> source) 
+    public static IObservable<T> ThrottlePerTick<T>(this IObservable<T> source)
         => source.Throttle(TimeSpan.Zero, NotInlineAvaloniaScheduler.Instance);
+
+    // I'm lazy, will implement other Throttle overloads as necessary
+    public static IObservable<TSource> ThrottleExcludingFirst<TSource, TThrottle>(
+        this IObservable<TSource> source, Func<TSource, IObservable<TThrottle>> throttleDurationSelector
+    )
+    {
+        return Observable.Create<TSource>(observer =>
+        {
+            CompositeDisposable disposables = new();
+
+            IConnectableObservable<TSource> replayedSource = source.Replay();
+            replayedSource.Connect().DisposeWith(disposables);
+
+            replayedSource
+                .Skip(1)
+                .Throttle(throttleDurationSelector)
+                .Merge(replayedSource.Take(1))
+                .SubscribeSafe(observer)
+                .DisposeWith(disposables);
+
+            return disposables;
+        });
+    }
 }

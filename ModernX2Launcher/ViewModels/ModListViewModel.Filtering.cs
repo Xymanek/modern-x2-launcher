@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Reactive;
 using System.Reactive.Linq;
+using ModernX2Launcher.Utilities;
 using ReactiveUI;
 
 namespace ModernX2Launcher.ViewModels;
@@ -20,7 +21,7 @@ public partial class ModListViewModel
     private IObservable<bool> DoesModPassFilters(ModEntryViewModel mod)
     {
         return this.WhenAnyValue(m => m.NameFilterValue)
-            .Throttle(nameFilterValue =>
+            .ThrottleExcludingFirst(nameFilterValue =>
             {
                 IObservable<Unit> triggerObservable = Observable.Return(Unit.Default);
 
