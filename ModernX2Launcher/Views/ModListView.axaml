@@ -40,6 +40,7 @@
 
             <WrapPanel Name="FiltersContainer">
                 <TextBox MinWidth="150" MaxWidth="200"
+                         Text="{Binding NameFilterValue}"
                          Watermark="Search by name"
                          Classes="clearButton" />
 

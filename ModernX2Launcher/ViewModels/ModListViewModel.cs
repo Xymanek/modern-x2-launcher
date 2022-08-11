@@ -205,6 +205,7 @@ public partial class ModListViewModel : ViewModelBase
             .Switch();
 
         return Mods.Connect()
+            .FilterOnObservable(DoesModPassFilters)
             .AutoRefreshOnObservable(WhenResortMod) // Note: SuppressRefresh after Sort breaks *all* sorting 
             .SortFixed(listComparerObs)
             .Snapshots()

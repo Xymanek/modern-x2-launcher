@@ -14,7 +14,7 @@ public static class DummyMods
                 IsEnabled = true,
                 Title = "The most unique voicepack on workshop",
                 Category = "Voicepacks",
-                Author = "Author 3",
+                Author = "Author 4",
             },
             new ModEntryViewModel
             {
