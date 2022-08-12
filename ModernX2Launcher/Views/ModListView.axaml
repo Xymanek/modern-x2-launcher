@@ -150,7 +150,7 @@
                 <Style Selector="DataGridColumnHeader">
                     <Setter Property="ContextMenu">
                         <ContextMenu>
-                            <MenuItem Header="Author" Command="{Binding ToggleColumnVisibilityAuthor}" />
+                            <MenuItem Header="Author" Command="{Binding ColumnVisibilityAuthor.Toggle}" />
                             <MenuItem Header="2" />
                         </ContextMenu>
                     </Setter>
@@ -195,7 +195,7 @@
                 <DataGridTextColumn Header="Title" Binding="{Binding Title}" />
                 <DataGridTextColumn Header="Category" Binding="{Binding Category}" />
                 <DataGridTextColumn Header="Author" Binding="{Binding Author}"
-                                    IsVisible="{Binding ColumnVisibleAuthor}" />
+                                    IsVisible="{Binding ColumnVisibilityAuthor.IsVisible}" />
             </DataGrid.Columns>
         </DataGrid>
     </DockPanel>

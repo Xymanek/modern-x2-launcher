@@ -139,11 +139,6 @@ public partial class ModListViewModel : ViewModelBase
             .FilterOnObservable(mod => mod.WhenAnyValue(m => m.IsEnabled))
             .Count()
             .ToProperty(this, nameof(EnabledCount));
-        
-        ToggleColumnVisibilityAuthor = ReactiveCommand.Create(() =>
-        {
-            ColumnVisibleAuthor = !ColumnVisibleAuthor;
-        });
     }
 
     private GroupingOption SetupGroupingOption(string label, IGroupingStrategy strategy)

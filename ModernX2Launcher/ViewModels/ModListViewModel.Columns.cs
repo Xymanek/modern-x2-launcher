@@ -5,13 +5,28 @@ namespace ModernX2Launcher.ViewModels;
 
 public partial class ModListViewModel
 {
-    private bool _columnVisibleAuthor = true;
-
-    public bool ColumnVisibleAuthor
+    public class ColumnVisibility : ReactiveObject
     {
-        get => _columnVisibleAuthor;
-        set => this.RaiseAndSetIfChanged(ref _columnVisibleAuthor, value);
+        private bool _isVisible = true;
+
+        public ColumnVisibility()
+        {
+            Toggle = ReactiveCommand.Create(ToggleImpl);
+        }
+
+        public bool IsVisible
+        {
+            get => _isVisible;
+            set => this.RaiseAndSetIfChanged(ref _isVisible, value);
+        }
+
+        public ReactiveCommand<Unit, Unit> Toggle { get; }
+
+        private void ToggleImpl()
+        {
+            IsVisible = !IsVisible;
+        }
     }
 
-    public ReactiveCommand<Unit, Unit> ToggleColumnVisibilityAuthor { get; }
+    public ColumnVisibility ColumnVisibilityAuthor { get; } = new();
 }
