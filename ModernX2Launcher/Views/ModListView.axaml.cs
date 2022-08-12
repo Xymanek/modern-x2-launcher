@@ -1,13 +1,16 @@
 ﻿using System;
 using System.Linq;
+using System.Reactive;
+using System.Threading.Tasks;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Interactivity;
-using Avalonia.Markup.Xaml;
 using Avalonia.ReactiveUI;
+using Avalonia.VisualTree;
 using DynamicData;
 using ModernX2Launcher.Utilities;
 using ModernX2Launcher.ViewModels;
+using ReactiveUI;
 
 namespace ModernX2Launcher.Views;
 
@@ -16,11 +19,8 @@ public partial class ModListView : ReactiveUserControl<ModListViewModel>
     public ModListView()
     {
         InitializeComponent();
-    }
 
-    private void InitializeComponent()
-    {
-        AvaloniaXamlLoader.Load(this);
+        this.WhenActivated(d => d(ViewModel!.ShowFilterDialog.RegisterHandler(ShowEditFilterDialogAsync)));
     }
 
     private void DataGrid_OnLoadingRow(object? sender, DataGridRowEventArgs e)
@@ -65,5 +65,14 @@ public partial class ModListView : ReactiveUserControl<ModListViewModel>
 
         ViewModel!.ToggleModEnabled.Execute(interactedMod)
             .Subscribe();
+    }
+    
+    private async Task ShowEditFilterDialogAsync(InteractionContext<Unit, Unit> interaction)
+    {
+        EditModListFilterWindow dialog = new();
+        // dialog.DataContext = interaction.Input;
+
+        /*var result =*/ await dialog.ShowDialog(this.FindAncestorOfType<Window>());
+        interaction.SetOutput(Unit.Default);
     }
 }

@@ -139,6 +139,8 @@ public partial class ModListViewModel : ViewModelBase
             .FilterOnObservable(mod => mod.WhenAnyValue(m => m.IsEnabled))
             .Count()
             .ToProperty(this, nameof(EnabledCount));
+
+        AddFilter = ReactiveCommand.CreateFromTask(AddFilterImpl);
     }
 
     private GroupingOption SetupGroupingOption(string label, IGroupingStrategy strategy)

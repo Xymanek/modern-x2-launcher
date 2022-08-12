@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Reactive;
 using System.Reactive.Linq;
+using System.Threading.Tasks;
 using ModernX2Launcher.Utilities;
 using ReactiveUI;
 
@@ -16,6 +17,15 @@ public partial class ModListViewModel
     {
         get => _nameFilterValue;
         set => this.RaiseAndSetIfChanged(ref _nameFilterValue, value);
+    }
+
+    public ReactiveCommand<Unit, Unit> AddFilter { get; }
+
+    public Interaction<Unit, Unit> ShowFilterDialog { get; } = new();
+
+    private async Task AddFilterImpl()
+    {
+        await ShowFilterDialog.Handle(Unit.Default);
     }
 
     private IObservable<bool> DoesModPassFilters(ModEntryViewModel mod)

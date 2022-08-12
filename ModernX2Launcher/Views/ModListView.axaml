@@ -86,7 +86,7 @@
                     </StackPanel>
                 </Border>
 
-                <Button>
+                <Button Command="{Binding AddFilter}">
                     <mi:MaterialIcon Kind="FilterPlus" />
                 </Button>
             </WrapPanel>
