@@ -35,14 +35,8 @@
                     <Setter Property="Background" Value="{DynamicResource ThemeControlMidBrush}" />
                 </Style>
 
-                <Style Selector="Border.flexibleFilterItem > StackPanel > TextBlock">
-                    <Setter Property="VerticalAlignment" Value="Center" />
-                    <Setter Property="Margin" Value="2 0 5 0" />
-                </Style>
-
                 <Style Selector="Border.flexibleFilterItem > StackPanel > Button">
                     <Setter Property="VerticalAlignment" Value="Stretch" />
-                    <Setter Property="Padding" Value="1 0" />
                     <Setter Property="BorderBrush" Value="{x:Null}" />
                     <Setter Property="Background" Value="{x:Null}" />
                 </Style>
@@ -77,14 +71,17 @@
 
                 <Border Classes="flexibleFilterItem">
                     <StackPanel Orientation="Horizontal">
-                        <TextBlock Text="IS Hidden" />
 
-                        <Button>
-                            <mi:MaterialIcon Kind="Edit" />
+                        <Button Padding="3 0"
+                                ToolTip.Tip="Click to edit">
+                            <TextBlock Text="IS Hidden" />
                         </Button>
 
-                        <Button>
-                            <mi:MaterialIcon Kind="Delete" />
+                        <Button Padding="0">
+                            <Panel>
+                                <mi:MaterialIcon Kind="Close" />
+                                <Rectangle Fill="Transparent" />
+                            </Panel>
                         </Button>
                     </StackPanel>
                 </Border>
@@ -141,7 +138,7 @@
                   LoadingRow="DataGrid_OnLoadingRow"
                   SelectionChanged="DataGrid_OnSelectionChanged">
             <DataGrid.Styles>
-                
+
                 <!--
                     Note: the context menu doesn't work on the empty space between the last column and the
                     right edge of the datagrid. That space is technically a column header, but it's IsEnabled = false
