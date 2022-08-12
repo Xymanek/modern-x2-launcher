@@ -62,8 +62,6 @@
             <Panel DockPanel.Dock="Right" HorizontalAlignment="Right">
                 <StackPanel Orientation="Horizontal" Margin="3">
 
-                    <!-- TODO: the hit test rectangle broke -->
-
                     <controls:IconStatBlock Icon="Warning" IconForeground="Orange"
                                             Content="1"
                                             IsVisible="True"

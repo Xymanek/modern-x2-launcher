@@ -18,7 +18,7 @@
             <ControlTemplate>
                 <Panel>
                     <!-- For tooltip hit test -->
-                    <Rectangle />
+                    <Rectangle Fill="Transparent"/>
 
                     <StackPanel Orientation="Horizontal">
                         <mi:MaterialIcon Kind="{TemplateBinding Icon}"
