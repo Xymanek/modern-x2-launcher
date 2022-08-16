@@ -1,8 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using Material.Icons;
+using ModernX2Launcher.ViewModels.Common;
 
-namespace ModernX2Launcher.ViewModels.MainWindowModes;
+namespace ModernX2Launcher.ViewModels.MainWindow;
 
 public interface IMainWindowMode
 {

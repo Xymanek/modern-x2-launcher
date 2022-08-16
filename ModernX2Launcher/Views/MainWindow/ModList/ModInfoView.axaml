@@ -2,15 +2,16 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-             xmlns:vm="using:ModernX2Launcher.ViewModels"
+             xmlns:vmCommon="clr-namespace:ModernX2Launcher.ViewModels.Common"
+             xmlns:vmModList="clr-namespace:ModernX2Launcher.ViewModels.MainWindow.ModList"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="300"
-             x:Class="ModernX2Launcher.Views.ModInfoView">
+             x:Class="ModernX2Launcher.Views.MainWindow.ModList.ModInfoView">
     <Design.DataContext>
-        <vm:ModInfoViewModel>
-            <vm:ModInfoViewModel.ModEntry>
-                <vm:ModEntryViewModel Title="An amazing mod" Author="Xymanek" />
-            </vm:ModInfoViewModel.ModEntry>
-        </vm:ModInfoViewModel>
+        <vmModList:ModInfoViewModel>
+            <vmModList:ModInfoViewModel.ModEntry>
+                <vmCommon:ModEntryViewModel Title="An amazing mod" Author="Xymanek" />
+            </vmModList:ModInfoViewModel.ModEntry>
+        </vmModList:ModInfoViewModel>
     </Design.DataContext>
 
     <Panel>

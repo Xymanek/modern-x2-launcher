@@ -1,8 +1,8 @@
 using Avalonia;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Markup.Xaml;
-using ModernX2Launcher.ViewModels;
-using ModernX2Launcher.Views;
+using ModernX2Launcher.ViewModels.MainWindow;
+using ModernX2Launcher.Views.MainWindow;
 
 namespace ModernX2Launcher
 {

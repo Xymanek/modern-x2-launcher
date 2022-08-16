@@ -1,8 +1,7 @@
-﻿using Avalonia;
-using Avalonia.Controls;
+﻿using Avalonia.Controls;
 using Avalonia.Markup.Xaml;
 
-namespace ModernX2Launcher.Views;
+namespace ModernX2Launcher.Views.MainWindow.ModList;
 
 public partial class ModInfoView : UserControl
 {

@@ -1,7 +1,7 @@
 ﻿using System;
 using ReactiveUI;
 
-namespace ModernX2Launcher.ViewModels;
+namespace ModernX2Launcher.ViewModels.MainWindow.ModList;
 
 public class ConfigFileEditorViewModel : ViewModelBase
 {

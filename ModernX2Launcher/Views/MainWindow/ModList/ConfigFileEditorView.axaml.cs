@@ -1,14 +1,11 @@
 ﻿using System;
-using Avalonia;
 using Avalonia.Controls;
-using Avalonia.Markup.Xaml;
 using Avalonia.Media;
-using AvaloniaEdit;
 using AvaloniaEdit.Document;
 using AvaloniaEdit.TextMate;
 using TextMateSharp.Grammars;
 
-namespace ModernX2Launcher.Views;
+namespace ModernX2Launcher.Views.MainWindow.ModList;
 
 public partial class ConfigFileEditorView : UserControl
 {

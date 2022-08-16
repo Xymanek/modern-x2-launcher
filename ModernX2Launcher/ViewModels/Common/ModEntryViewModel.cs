@@ -1,6 +1,6 @@
 ﻿using ReactiveUI;
 
-namespace ModernX2Launcher.ViewModels;
+namespace ModernX2Launcher.ViewModels.Common;
 
 /// <remarks>
 /// Never will have an associated view, so not a <see cref="ViewModelBase"/>

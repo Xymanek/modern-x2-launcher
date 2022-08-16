@@ -8,9 +8,10 @@ using System.Threading.Tasks;
 using DynamicData;
 using Material.Icons;
 using ModernX2Launcher.ModDiscovery;
+using ModernX2Launcher.ViewModels.Common;
 using ReactiveUI;
 
-namespace ModernX2Launcher.ViewModels.MainWindowModes;
+namespace ModernX2Launcher.ViewModels.MainWindow.ModList;
 
 public class ModListModeViewModel : ViewModelBase, IMainWindowMode
 {

@@ -5,9 +5,10 @@ using System.Linq.Expressions;
 using System.Reactive.Linq;
 using DynamicData;
 using ModernX2Launcher.Utilities;
+using ModernX2Launcher.ViewModels.Common;
 using ReactiveUI;
 
-namespace ModernX2Launcher.ViewModels;
+namespace ModernX2Launcher.ViewModels.MainWindow.ModList;
 
 public partial class ModListViewModel
 {

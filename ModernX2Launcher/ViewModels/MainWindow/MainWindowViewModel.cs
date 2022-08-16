@@ -3,10 +3,14 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reactive.Linq;
 using ModernX2Launcher.Utilities;
-using ModernX2Launcher.ViewModels.MainWindowModes;
+using ModernX2Launcher.ViewModels.Common;
+using ModernX2Launcher.ViewModels.MainWindow.ModList;
+using ModernX2Launcher.ViewModels.MainWindow.Overrides;
+using ModernX2Launcher.ViewModels.MainWindow.Profiles;
+using ModernX2Launcher.ViewModels.MainWindow.Updates;
 using ReactiveUI;
 
-namespace ModernX2Launcher.ViewModels;
+namespace ModernX2Launcher.ViewModels.MainWindow;
 
 public class MainWindowViewModel : ViewModelBase
 {
@@ -17,7 +21,7 @@ public class MainWindowViewModel : ViewModelBase
             ModListMode,
             OverridesMode,
             UpdatesMode,
-            ProfileMode,
+            ProfilesMode,
         };
 
         _activeMode = ModListMode;
@@ -69,7 +73,7 @@ public class MainWindowViewModel : ViewModelBase
     public ModListModeViewModel ModListMode { get; } = new();
     public OverridesModeViewModel OverridesMode { get; } = new();
     public UpdatesModeViewModel UpdatesMode { get; } = new();
-    public ProfileModeViewModel ProfileMode { get; } = new();
+    public ProfilesModeViewModel ProfilesMode { get; } = new();
 
     public IReadOnlyList<IMainWindowMode> Modes { get; }
 

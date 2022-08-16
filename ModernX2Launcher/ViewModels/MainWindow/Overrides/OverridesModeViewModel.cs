@@ -2,8 +2,9 @@
 using System.Collections.Generic;
 using System.Reactive.Linq;
 using Material.Icons;
+using ModernX2Launcher.ViewModels.Common;
 
-namespace ModernX2Launcher.ViewModels.MainWindowModes;
+namespace ModernX2Launcher.ViewModels.MainWindow.Overrides;
 
 public class OverridesModeViewModel : ViewModelBase, IMainWindowMode
 {

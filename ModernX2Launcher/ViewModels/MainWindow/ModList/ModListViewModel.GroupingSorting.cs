@@ -6,8 +6,9 @@ using Avalonia.Collections;
 using Avalonia.Data.Converters;
 using DynamicData.Binding;
 using ModernX2Launcher.Utilities;
+using ModernX2Launcher.ViewModels.Common;
 
-namespace ModernX2Launcher.ViewModels;
+namespace ModernX2Launcher.ViewModels.MainWindow.ModList;
 
 public partial class ModListViewModel
 {

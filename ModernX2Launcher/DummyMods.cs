@@ -1,5 +1,6 @@
 ﻿using DynamicData;
-using ModernX2Launcher.ViewModels;
+using ModernX2Launcher.ViewModels.Common;
+using ModernX2Launcher.ViewModels.MainWindow.ModList;
 
 namespace ModernX2Launcher;
 

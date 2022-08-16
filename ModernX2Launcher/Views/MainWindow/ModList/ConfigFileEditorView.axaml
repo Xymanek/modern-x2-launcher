@@ -2,13 +2,13 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-             xmlns:vm="using:ModernX2Launcher.ViewModels"
+             xmlns:vmModList="clr-namespace:ModernX2Launcher.ViewModels.MainWindow.ModList"
              xmlns:avaloniaEdit="clr-namespace:AvaloniaEdit;assembly=AvaloniaEdit"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
-             x:Class="ModernX2Launcher.Views.ConfigFileEditorView">
+             x:Class="ModernX2Launcher.Views.MainWindow.ModList.ConfigFileEditorView">
 
     <Design.DataContext>
-        <vm:ConfigFileEditorViewModel />
+        <vmModList:ConfigFileEditorViewModel />
     </Design.DataContext>
 
     <avaloniaEdit:TextEditor Margin="5"

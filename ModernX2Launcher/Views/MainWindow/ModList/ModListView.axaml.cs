@@ -9,10 +9,11 @@ using Avalonia.ReactiveUI;
 using Avalonia.VisualTree;
 using DynamicData;
 using ModernX2Launcher.Utilities;
-using ModernX2Launcher.ViewModels;
+using ModernX2Launcher.ViewModels.Common;
+using ModernX2Launcher.ViewModels.MainWindow.ModList;
 using ReactiveUI;
 
-namespace ModernX2Launcher.Views;
+namespace ModernX2Launcher.Views.MainWindow.ModList;
 
 public partial class ModListView : ReactiveUserControl<ModListViewModel>
 {

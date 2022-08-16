@@ -9,9 +9,10 @@ using DynamicData;
 using DynamicData.Aggregation;
 using Material.Icons;
 using ModernX2Launcher.Utilities;
+using ModernX2Launcher.ViewModels.Common;
 using ReactiveUI;
 
-namespace ModernX2Launcher.ViewModels;
+namespace ModernX2Launcher.ViewModels.MainWindow.ModList;
 
 public partial class ModListViewModel : ViewModelBase
 {

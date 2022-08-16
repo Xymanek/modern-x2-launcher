@@ -2,7 +2,7 @@
 using System.Windows.Input;
 using ReactiveUI;
 
-namespace ModernX2Launcher.ViewModels;
+namespace ModernX2Launcher.ViewModels.Common;
 
 public interface IMenuItemViewModel
 {
