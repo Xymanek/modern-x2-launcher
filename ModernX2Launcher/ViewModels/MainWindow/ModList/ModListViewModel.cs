@@ -10,6 +10,7 @@ using DynamicData.Aggregation;
 using Material.Icons;
 using ModernX2Launcher.Utilities;
 using ModernX2Launcher.ViewModels.Common;
+using ModernX2Launcher.ViewModels.MainWindow.ModList.Filtering;
 using ReactiveUI;
 
 namespace ModernX2Launcher.ViewModels.MainWindow.ModList;
@@ -142,6 +143,8 @@ public partial class ModListViewModel : ViewModelBase
             .ToProperty(this, nameof(EnabledCount));
 
         AddFilter = ReactiveCommand.CreateFromTask(AddFilterImpl);
+        
+        ActiveFilters.Add(new IsEnabledFilter(BoolModFilterKind.ExcludeFalse));
     }
 
     private GroupingOption SetupGroupingOption(string label, IGroupingStrategy strategy)
