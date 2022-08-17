@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reactive.Linq;
+using System.Runtime.CompilerServices;
 using DynamicData;
 
 namespace ModernX2Launcher.Utilities.Operators;
@@ -87,10 +88,15 @@ internal class FlattenConcatChangeSets<T>
                 switch (change.Reason)
                 {
                     case ListChangeReason.Add:
+                        Ensure(change.CurrentIndex > -1);
+                        
                         AddInnerSequence(change.Current, change.CurrentIndex);
                         break;
 
                     case ListChangeReason.Replace:
+                        Ensure(change.Previous.HasValue);
+                        Ensure(change.CurrentIndex > -1);
+
                         RemoveInnerSequence(change.Previous.Value);
                         AddInnerSequence(change.Current, change.CurrentIndex);
                         break;
@@ -108,6 +114,7 @@ internal class FlattenConcatChangeSets<T>
                         break;
 
                     case ListChangeReason.Moved:
+                        // I currently don't need this and I'm too lazy to figure out the index math
                         throw new NotImplementedException();
 
                         if (change.PreviousIndex == change.CurrentIndex) continue; // ???
@@ -140,6 +147,8 @@ internal class FlattenConcatChangeSets<T>
                 switch (change.Reason)
                 {
                     case ListChangeReason.Add:
+                        Ensure(change.Item.CurrentIndex > -1);
+
                         _latestResult.Insert(
                             resultOffset + change.Item.CurrentIndex,
                             change.Item.Current
@@ -149,38 +158,55 @@ internal class FlattenConcatChangeSets<T>
                         break;
 
                     case ListChangeReason.AddRange:
+                        Ensure(change.Range.Index > -1);
+
                         _latestResult.AddRange(change.Range, resultOffset + change.Range.Index);
 
                         tracker.LatestCount += change.Range.Count;
                         break;
 
                     case ListChangeReason.Replace:
+                        Ensure(change.Item.CurrentIndex > -1);
+                        Ensure(change.Item.PreviousIndex > -1);
+
                         _latestResult.RemoveAt(resultOffset + change.Item.PreviousIndex);
                         _latestResult.Insert(resultOffset + change.Item.CurrentIndex, change.Item.Current);
                         break;
 
                     case ListChangeReason.Remove:
+                        Ensure(change.Item.PreviousIndex > -1);
+
                         _latestResult.RemoveAt(resultOffset + change.Item.PreviousIndex);
 
                         tracker.LatestCount--;
                         break;
 
                     case ListChangeReason.RemoveRange:
+                        Ensure(change.Range.Index > -1);
+
                         _latestResult.RemoveRange(resultOffset + change.Range.Index, change.Range.Count);
 
                         tracker.LatestCount -= change.Range.Count;
                         break;
 
                     case ListChangeReason.Refresh:
+                        Ensure(change.Item.CurrentIndex > -1);
+
                         _latestResult.RefreshAt(resultOffset + change.Item.CurrentIndex);
                         break;
 
                     case ListChangeReason.Moved:
-                        throw new NotImplementedException();
+                        Ensure(change.Item.CurrentIndex > -1);
+                        Ensure(change.Item.PreviousIndex > -1);
+                        
+                        _latestResult.Move(
+                            resultOffset + change.Item.PreviousIndex,
+                            resultOffset + change.Item.CurrentIndex
+                        );
                         break;
 
                     case ListChangeReason.Clear:
-                        _latestResult.RemoveRange(resultOffset + change.Range.Index, tracker.LatestCount);
+                        _latestResult.RemoveRange(resultOffset, tracker.LatestCount);
 
                         tracker.LatestCount = 0;
                         break;
@@ -237,6 +263,14 @@ internal class FlattenConcatChangeSets<T>
 
                     _latestCount = value;
                 }
+            }
+        }
+
+        private void Ensure(bool condition, [CallerArgumentExpression("condition")] string expression = default!)
+        {
+            if (!condition)
+            {
+                throw new Exception("Ensure failed: " + expression);
             }
         }
     }
