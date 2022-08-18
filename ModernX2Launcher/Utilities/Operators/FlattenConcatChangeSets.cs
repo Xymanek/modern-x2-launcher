@@ -42,6 +42,8 @@ internal class FlattenConcatChangeSets<T>
         public IDisposable Subscribe()
         {
             IObservable<IChangeSet<InnerSequenceTracker>> transformedSource = _definition._source
+                // TODO: this happens twice for a single add so the tracker in ProcessInnerChangeSet
+                // is not the same as the one in _innerSequences
                 .Transform(innerSequence => new InnerSequenceTracker(innerSequence))
                 .Synchronize(_locker);
 
@@ -77,10 +79,12 @@ internal class FlattenConcatChangeSets<T>
                 _innerSequences.Insert(index, tracker);
             }
 
-            void RemoveInnerSequence(InnerSequenceTracker tracker)
+            void RemoveInnerSequence(int index)
             {
-                _latestResult.RemoveRange(_innerSequences.IndexOf(tracker), tracker.LatestCount);
-                _innerSequences.Remove(tracker);
+                InnerSequenceTracker tracker = _innerSequences[index];
+                
+                _latestResult.RemoveRange(index, tracker.LatestCount);
+                _innerSequences.RemoveAt(index);
             }
 
             foreach (ItemChange<InnerSequenceTracker> change in changes)
@@ -97,12 +101,12 @@ internal class FlattenConcatChangeSets<T>
                         Ensure(change.Previous.HasValue);
                         Ensure(change.CurrentIndex > -1);
 
-                        RemoveInnerSequence(change.Previous.Value);
+                        RemoveInnerSequence(change.PreviousIndex);
                         AddInnerSequence(change.Current, change.CurrentIndex);
                         break;
 
                     case ListChangeReason.Remove:
-                        RemoveInnerSequence(change.Current);
+                        RemoveInnerSequence(change.CurrentIndex);
                         break;
 
                     case ListChangeReason.Refresh:
@@ -117,13 +121,13 @@ internal class FlattenConcatChangeSets<T>
                         // I currently don't need this and I'm too lazy to figure out the index math
                         throw new NotImplementedException();
 
-                        if (change.PreviousIndex == change.CurrentIndex) continue; // ???
+                        /*if (change.PreviousIndex == change.CurrentIndex) continue; // ???
 
                         _innerSequences.RemoveAt(change.PreviousIndex);
                         _innerSequences.Insert(change.CurrentIndex, change.Current);
 
                         // _latestResult.Move();
-                        break;
+                        break;*/
 
                     case ListChangeReason.Clear:
                     case ListChangeReason.AddRange:
@@ -140,6 +144,8 @@ internal class FlattenConcatChangeSets<T>
             InnerSequenceTracker tracker, IChangeSet<T> changeSet
         )
         {
+            Ensure(_innerSequences.Contains(tracker));
+            
             int resultOffset = GetResultOffset(tracker);
 
             foreach (Change<T> change in changeSet)

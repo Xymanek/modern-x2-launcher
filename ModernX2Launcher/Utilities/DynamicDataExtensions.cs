@@ -7,6 +7,7 @@ using System.Reactive.Subjects;
 using Avalonia.Collections;
 using DynamicData;
 using DynamicData.Binding;
+using ModernX2Launcher.Utilities.Operators;
 
 namespace ModernX2Launcher.Utilities;
 
@@ -72,5 +73,32 @@ public static class DynamicDataExtensions
 
             return disposables;
         });
+    }
+
+    // IChangeSet isn't variant so we gotta do this atrocity that also fails type inference
+    public static IObservable<IChangeSet<TItem>> FlattenConcat<TInnerCollection, TItem>(
+        this IObservable<IChangeSet<TInnerCollection>> source
+    )
+        where TInnerCollection : IObservableList<TItem>
+    {
+        return source
+            .Transform(static innerList => innerList.Connect())
+            .FlattenConcat();
+    }
+
+    /*public static IObservable<IChangeSet<T>> FlattenConcat<T>(
+        this IObservable<IChangeSet<IObservableList<T>>> source
+    )
+    {
+        return source
+            .Transform(static innerList => innerList.Connect())
+            .FlattenConcat();
+    }*/
+
+    public static IObservable<IChangeSet<T>> FlattenConcat<T>(
+        this IObservable<IChangeSet<IObservable<IChangeSet<T>>>> source
+    )
+    {
+        return new FlattenConcatChangeSets<T>(source).Run();
     }
 }
