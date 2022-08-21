@@ -2,6 +2,10 @@
 Microsoft Visual Studio Solution File, Format Version 12.00
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ModernX2Launcher", "ModernX2Launcher\ModernX2Launcher.csproj", "{12A39B99-4A0B-4A66-9DC3-B41E428FEE91}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Xymanek.ReactiveUI.Toolkit", "ReactiveUI.Toolkit\Xymanek.ReactiveUI.Toolkit\Xymanek.ReactiveUI.Toolkit.csproj", "{733AB54A-F92B-474B-9D43-F4F077B21F3D}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Xymanek.ReactiveUI.Toolkit.Roslyn", "ReactiveUI.Toolkit\Xymanek.ReactiveUI.Toolkit.Roslyn\Xymanek.ReactiveUI.Toolkit.Roslyn.csproj", "{2B1C5D08-1F9D-4A40-88E1-1DAAC1314705}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -12,5 +16,13 @@ Global
 		{12A39B99-4A0B-4A66-9DC3-B41E428FEE91}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{12A39B99-4A0B-4A66-9DC3-B41E428FEE91}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{12A39B99-4A0B-4A66-9DC3-B41E428FEE91}.Release|Any CPU.Build.0 = Release|Any CPU
+		{733AB54A-F92B-474B-9D43-F4F077B21F3D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{733AB54A-F92B-474B-9D43-F4F077B21F3D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{733AB54A-F92B-474B-9D43-F4F077B21F3D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{733AB54A-F92B-474B-9D43-F4F077B21F3D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2B1C5D08-1F9D-4A40-88E1-1DAAC1314705}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2B1C5D08-1F9D-4A40-88E1-1DAAC1314705}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2B1C5D08-1F9D-4A40-88E1-1DAAC1314705}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2B1C5D08-1F9D-4A40-88E1-1DAAC1314705}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

@@ -5,9 +5,9 @@ using System.Reactive;
 using System.Reactive.Disposables;
 using System.Reactive.Linq;
 using System.Threading.Tasks;
-using DynamicData;
 using Material.Icons;
 using ModernX2Launcher.ModDiscovery;
+using ModernX2Launcher.Utilities;
 using ModernX2Launcher.ViewModels.Common;
 using ReactiveUI;
 
@@ -24,9 +24,19 @@ public class ModListModeViewModel : ViewModelBase, IMainWindowMode
         this.WhenActivated(disposables =>
         {
             ModList.SelectedMods.Connect()
-                .Select(GetLastSelectedMod)
-                .WhereNotNull() // Keep last selection
-                .Subscribe(modEntry => ModInfo.ModEntry = modEntry)
+                .Snapshots()
+                .Subscribe(selectedMods =>
+                {
+                    ModInfo.MultipleSelected = selectedMods.Count > 1;
+                    
+                    if (selectedMods.Count == 1)
+                    {
+                        ModInfo.ModEntry = selectedMods.First();
+                        return;
+                    }
+
+                    ModInfo.ModEntry = null;
+                })
                 .DisposeWith(disposables);
         });
 
@@ -41,33 +51,6 @@ public class ModListModeViewModel : ViewModelBase, IMainWindowMode
                 }
             },
         });
-    }
-
-    private static ModEntryViewModel? GetLastSelectedMod(IChangeSet<ModEntryViewModel> changeSet)
-    {
-        IEnumerable<ModEntryViewModel> GetAllAdded()
-        {
-            foreach (Change<ModEntryViewModel> change in changeSet)
-            {
-                // ReSharper disable once SwitchStatementMissingSomeEnumCasesNoDefault
-                switch (change.Reason)
-                {
-                    case ListChangeReason.Add:
-                        yield return change.Item.Current;
-                        break;
-
-                    case ListChangeReason.AddRange:
-                        foreach (ModEntryViewModel modEntry in change.Range)
-                        {
-                            yield return modEntry;
-                        }
-
-                        break;
-                }
-            }
-        }
-
-        return GetAllAdded().LastOrDefault();
     }
 
     public ModListViewModel ModList { get; } = new();

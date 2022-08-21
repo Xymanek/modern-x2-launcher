@@ -15,10 +15,16 @@
     </Design.DataContext>
 
     <Panel>
-        <TextBlock Text="No selected mod"
-                   VerticalAlignment="Center" HorizontalAlignment="Center"
-                   IsVisible="{Binding ModEntry, Converter={x:Static ObjectConverters.IsNull}}"/>
-        
+        <Panel IsVisible="{Binding ModEntry, Converter={x:Static ObjectConverters.IsNull}}">
+            <TextBlock Text="No selected mod"
+                       VerticalAlignment="Center" HorizontalAlignment="Center"
+                       IsVisible="{Binding !MultipleSelected}" />
+
+            <TextBlock Text="Multiple selected mods"
+                       VerticalAlignment="Center" HorizontalAlignment="Center"
+                       IsVisible="{Binding MultipleSelected}" />
+        </Panel>
+
         <Grid IsVisible="{Binding ModEntry, Converter={x:Static ObjectConverters.IsNotNull}}">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition MaxWidth="200" Width="Auto" /> <!-- Fix this once we have the actual image -->
@@ -44,7 +50,7 @@
                         <Rectangle Grid.Column="7" Grid.Row="0" Grid.RowSpan="3"
                                    Width="65" Fill="Green" Margin="5 0 0 0"
                                    ToolTip.Tip="Click to open author's workshop" />
-                        
+
                         <!-- Last update -->
                         <TextBlock Grid.Column="0" Grid.Row="2" Text="Last update" VerticalAlignment="Center" />
                         <TextBox Grid.Column="2" Grid.Row="2" IsReadOnly="True" />
