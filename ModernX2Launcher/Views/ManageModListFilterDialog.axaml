@@ -3,10 +3,10 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         mc:Ignorable="d"
-        x:Class="ModernX2Launcher.Views.ManageModListFilterWindow"
+        x:Class="ModernX2Launcher.Views.ManageModListFilterDialog"
         Title="Edit filter"
         SizeToContent="Width" Height="400"
-        CanResize="False">
+        CanResize="False" Closing="Window_OnClosing">
     <!--
         I would prefer to hide the hide/maximize buttons, but that requires calling platform-specific APIs
         or providing entirely custom title bar -.-
@@ -15,7 +15,7 @@
     <TabControl TabStripPlacement="Left" Padding="5">
         <TabControl.ItemsPanel>
             <ItemsPanelTemplate>
-                <StackPanel></StackPanel>
+                <StackPanel Background="{DynamicResource ThemeControlHighlightLowBrush}" />
             </ItemsPanelTemplate>
         </TabControl.ItemsPanel>
 
@@ -120,6 +120,14 @@
                 </Border>
             </ControlTemplate>
         </TabControl.Template>
+        
+        <TabControl.Styles>
+            <Style Selector="TabItem">
+                <Setter Property="Foreground" Value="{DynamicResource ThemeForegroundColor}" />
+                <Setter Property="Padding" Value="6 2" />
+                <Setter Property="FontSize" Value="14" />
+            </Style>
+        </TabControl.Styles>
 
         <TabItem Header="Enabled">
             123
