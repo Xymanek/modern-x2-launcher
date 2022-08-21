@@ -1,0 +1,144 @@
+﻿<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        mc:Ignorable="d"
+        x:Class="ModernX2Launcher.Views.ManageModListFilterWindow"
+        Title="Edit filter"
+        SizeToContent="Width" Height="400"
+        CanResize="False">
+    <!--
+        I would prefer to hide the hide/maximize buttons, but that requires calling platform-specific APIs
+        or providing entirely custom title bar -.-
+    -->
+
+    <TabControl TabStripPlacement="Left" Padding="5">
+        <TabControl.ItemsPanel>
+            <ItemsPanelTemplate>
+                <StackPanel></StackPanel>
+            </ItemsPanelTemplate>
+        </TabControl.ItemsPanel>
+
+        <TabControl.Template>
+            <ControlTemplate>
+                <Border
+                    BorderBrush="{TemplateBinding BorderBrush}"
+                    BorderThickness="{TemplateBinding BorderThickness}"
+                    CornerRadius="{TemplateBinding CornerRadius}"
+                    Background="{TemplateBinding Background}"
+                    HorizontalAlignment="{TemplateBinding HorizontalAlignment}"
+                    VerticalAlignment="{TemplateBinding VerticalAlignment}">
+                    <DockPanel>
+
+                        <ScrollViewer>
+                            <ItemsPresenter
+                                Name="PART_ItemsPresenter"
+                                Items="{TemplateBinding Items}"
+                                ItemsPanel="{TemplateBinding ItemsPanel}"
+                                ItemTemplate="{TemplateBinding ItemTemplate}">
+                            </ItemsPresenter>
+                        </ScrollViewer>
+
+                        <StackPanel Width="600" Orientation="Vertical">
+                            <Panel>
+                                <Rectangle Fill="{DynamicResource ThemeControlHighlightMidBrush}" />
+                                <Grid Margin="3"
+                                      RowDefinitions="Auto" ColumnDefinitions="*, *, *, Auto, Auto">
+
+                                    <Grid.Styles>
+                                        <Style Selector="Panel.statReadout > Panel">
+                                            <Setter Property="HorizontalAlignment" Value="Center" />
+                                            <Setter Property="VerticalAlignment" Value="Center" />
+                                            <Setter Property="Margin" Value="5 0" />
+                                        </Style>
+
+                                        <Style Selector="Panel.statReadout > Panel > Rectangle">
+                                            <Setter Property="Fill" Value="Transparent" />
+                                        </Style>
+
+                                        <Style Selector="Panel.statReadout > Panel > StackPanel">
+                                            <Setter Property="Orientation" Value="Horizontal" />
+                                        </Style>
+
+                                        <Style Selector="Panel.statReadout TextBlock:nth-child(1)">
+                                            <Setter Property="Margin" Value="0 0 2 0" />
+                                        </Style>
+                                    </Grid.Styles>
+
+                                    <Panel Grid.Column="0" Classes="statReadout">
+                                        <Panel ToolTip.Tip="123">
+                                            <Rectangle />
+                                            <StackPanel>
+                                                <TextBlock>Total:</TextBlock>
+                                                <TextBlock>123</TextBlock>
+                                            </StackPanel>
+                                        </Panel>
+                                    </Panel>
+
+                                    <Panel Grid.Column="1" Classes="statReadout">
+                                        <Panel ToolTip.Tip="123">
+                                            <Rectangle />
+                                            <StackPanel>
+                                                <TextBlock>After other filters:</TextBlock>
+                                                <TextBlock>123</TextBlock>
+                                            </StackPanel>
+                                        </Panel>
+                                    </Panel>
+
+                                    <Panel Grid.Column="2" Classes="statReadout">
+                                        <Panel ToolTip.Tip="123">
+                                            <Rectangle />
+                                            <StackPanel>
+                                                <TextBlock>After this filter:</TextBlock>
+                                                <TextBlock>123</TextBlock>
+                                            </StackPanel>
+                                        </Panel>
+                                    </Panel>
+
+                                    <Button Grid.Column="3" Margin="0 0 5 0">
+                                        Cancel
+                                    </Button>
+
+                                    <Button Grid.Column="4">
+                                        Save
+                                    </Button>
+
+                                </Grid>
+                            </Panel>
+
+                            <ContentPresenter
+                                Name="PART_SelectedContentHost"
+                                Margin="{TemplateBinding Padding}"
+                                HorizontalContentAlignment="{TemplateBinding HorizontalContentAlignment}"
+                                VerticalContentAlignment="{TemplateBinding VerticalContentAlignment}"
+                                Content="{TemplateBinding SelectedContent}"
+                                ContentTemplate="{TemplateBinding SelectedContentTemplate}">
+                            </ContentPresenter>
+                        </StackPanel>
+
+                    </DockPanel>
+                </Border>
+            </ControlTemplate>
+        </TabControl.Template>
+
+        <TabItem Header="Enabled">
+            123
+        </TabItem>
+
+        <TabItem Header="Source">
+            456
+        </TabItem>
+
+        <TabItem Header="Author">
+            789
+        </TabItem>
+
+        <TabItem Header="Author">
+            2 123
+        </TabItem>
+
+        <TabItem Header="Author">
+            2 456
+        </TabItem>
+    </TabControl>
+</Window>

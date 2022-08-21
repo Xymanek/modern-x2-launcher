@@ -4,9 +4,9 @@ using Avalonia.Markup.Xaml;
 
 namespace ModernX2Launcher.Views;
 
-public partial class EditModListFilterWindow : Window
+public partial class ManageModListFilterWindow : Window
 {
-    public EditModListFilterWindow()
+    public ManageModListFilterWindow()
     {
         InitializeComponent();
     }

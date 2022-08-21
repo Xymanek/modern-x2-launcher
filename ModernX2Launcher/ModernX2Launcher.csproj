@@ -20,9 +20,8 @@
         <TrimmableAssembly Include="Avalonia.Themes.Default" />
     </ItemGroup>
     <ItemGroup>
-        <ProjectReference Include="..\ReactiveUI.Toolkit\Xymanek.ReactiveUI.Toolkit\Xymanek.ReactiveUI.Toolkit.csproj"/>
-        <ProjectReference Include="..\ReactiveUI.Toolkit\Xymanek.ReactiveUI.Toolkit.Roslyn\Xymanek.ReactiveUI.Toolkit.Roslyn.csproj"
-                          ReferenceOutputAssembly="false" OutputItemType="Analyzer"/>
+        <ProjectReference Include="..\ReactiveUI.Toolkit\Xymanek.ReactiveUI.Toolkit\Xymanek.ReactiveUI.Toolkit.csproj" />
+        <ProjectReference Include="..\ReactiveUI.Toolkit\Xymanek.ReactiveUI.Toolkit.Roslyn\Xymanek.ReactiveUI.Toolkit.Roslyn.csproj" ReferenceOutputAssembly="false" OutputItemType="Analyzer" />
     </ItemGroup>
     <ItemGroup>
         <PackageReference Include="Avalonia" Version="0.10.17" />

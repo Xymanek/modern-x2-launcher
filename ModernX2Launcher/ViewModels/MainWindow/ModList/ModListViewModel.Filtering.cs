@@ -31,12 +31,12 @@ public partial class ModListViewModel
 
     private async Task AddFilterImpl()
     {
-        // await ShowFilterDialog.Handle(Unit.Default);
+        await ShowFilterDialog.Handle(Unit.Default);
 
-        ActiveFilters.Add(new IsEnabledFilter(BoolModFilterKind.ExcludeFalse));
+        // ActiveFilters.Add(new IsEnabledFilter(BoolModFilterKind.ExcludeFalse));
 
         // Yes roslyn, I know...
-        await Task.CompletedTask;
+        // await Task.CompletedTask;
     }
 
     private IObservable<bool> DoesModPassFilters(ModEntryViewModel mod)

@@ -99,7 +99,7 @@ public partial class ModListView : ReactiveUserControl<ModListViewModel>
     
     private async Task ShowEditFilterDialogAsync(InteractionContext<Unit, Unit> interaction)
     {
-        EditModListFilterWindow dialog = new();
+        ManageModListFilterWindow dialog = new();
         // dialog.DataContext = interaction.Input;
 
         /*var result =*/ await dialog.ShowDialog(this.FindAncestorOfType<Window>());
