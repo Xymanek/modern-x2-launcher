@@ -76,12 +76,14 @@
                 </ItemsControl.ItemsPanel>
 
                 <ItemsControl.Resources>
+                    <!-- ReSharper disable once Xaml.RedundantResource -->
                     <TextBox x:Key="NameFilterTextBox"
                              MinWidth="150" MaxWidth="200"
                              Text="{Binding NameFilterValue}"
                              Watermark="Search by name"
                              Classes="clearButton" />
 
+                    <!-- ReSharper disable once Xaml.RedundantResource -->
                     <Button x:Key="AddFilterButton"
                             Command="{Binding AddFilter}"
                             ToolTip.Tip="Click to add a new filter">
