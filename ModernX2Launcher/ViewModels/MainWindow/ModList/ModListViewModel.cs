@@ -143,8 +143,6 @@ public partial class ModListViewModel : ViewModelBase
             .ToProperty(this, nameof(EnabledCount));
 
         AddFilter = ReactiveCommand.CreateFromTask(AddFilterImpl);
-        
-        ActiveFilters.Add(new IsEnabledFilter(BoolModFilterKind.ExcludeFalse));
     }
 
     private GroupingOption SetupGroupingOption(string label, IGroupingStrategy strategy)

@@ -1,6 +1,7 @@
 ﻿<UserControl xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:vmCommon="clr-namespace:ModernX2Launcher.ViewModels.Common"
+             xmlns:vmFiltering="clr-namespace:ModernX2Launcher.ViewModels.MainWindow.ModList.Filtering"
              xmlns:dVm="using:ModernX2Launcher.Design.ViewModels"
              xmlns:controls="clr-namespace:ModernX2Launcher.Views.Controls"
              xmlns:mi="clr-namespace:Material.Icons.Avalonia;assembly=Material.Icons.Avalonia"
@@ -24,8 +25,12 @@
                     so each filter gets right/down margin which should account for spacing between items themselves
                     and between the items and grid without any excessive spacing anywhere 
                 -->
-                <Style Selector="#FiltersContainer > :is(Control)">
+                <Style Selector="#FilterItems > :is(Control)">
                     <Setter Property="Margin" Value="0 0 5 5" />
+                </Style>
+
+                <Style Selector="#FilterItems /template/ Border">
+                    <Setter Property="Margin" Value="0" />
                 </Style>
 
                 <Style Selector="Border.flexibleFilterItem">
@@ -63,33 +68,50 @@
                                     Content="{Binding PostFilterCount}"
                                     ToolTip.Tip="Number of displayed mods (after filtering)" />
 
-            <WrapPanel Name="FiltersContainer">
-                <TextBox MinWidth="150" MaxWidth="200"
-                         Text="{Binding NameFilterValue}"
-                         Watermark="Search by name"
-                         Classes="clearButton" />
+            <ItemsControl Name="FilterItems">
+                <ItemsControl.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <WrapPanel></WrapPanel>
+                    </ItemsPanelTemplate>
+                </ItemsControl.ItemsPanel>
 
-                <Border Classes="flexibleFilterItem">
-                    <StackPanel Orientation="Horizontal">
+                <ItemsControl.Resources>
+                    <TextBox x:Key="NameFilterTextBox"
+                             MinWidth="150" MaxWidth="200"
+                             Text="{Binding NameFilterValue}"
+                             Watermark="Search by name"
+                             Classes="clearButton" />
 
-                        <Button Padding="3 0"
-                                ToolTip.Tip="Click to edit">
-                            <TextBlock Text="IS Hidden" />
-                        </Button>
+                    <Button x:Key="AddFilterButton"
+                            Command="{Binding AddFilter}"
+                            ToolTip.Tip="Click to add a new filter">
+                        <mi:MaterialIcon Kind="FilterPlus" />
+                    </Button>
+                </ItemsControl.Resources>
 
-                        <Button Padding="0">
-                            <Panel>
-                                <mi:MaterialIcon Kind="Close" />
-                                <Rectangle Fill="Transparent" />
-                            </Panel>
-                        </Button>
-                    </StackPanel>
-                </Border>
+                <ItemsControl.DataTemplates>
+                    <DataTemplate DataType="{x:Type vmFiltering:IModListFilter}">
 
-                <Button Command="{Binding AddFilter}">
-                    <mi:MaterialIcon Kind="FilterPlus" />
-                </Button>
-            </WrapPanel>
+                        <Border Classes="flexibleFilterItem">
+                            <StackPanel Orientation="Horizontal">
+
+                                <Button Padding="3 0"
+                                        ToolTip.Tip="Click to edit">
+                                    <TextBlock Text="{Binding DisplayLabel}" />
+                                </Button>
+
+                                <Button Padding="0">
+                                    <Panel>
+                                        <mi:MaterialIcon Kind="Close" />
+                                        <Rectangle Fill="Transparent" />
+                                    </Panel>
+                                </Button>
+                            </StackPanel>
+                        </Border>
+
+                    </DataTemplate>
+                </ItemsControl.DataTemplates>
+            </ItemsControl>
 
         </DockPanel>
 

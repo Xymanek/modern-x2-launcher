@@ -1,6 +1,9 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Reactive;
+using System.Reactive.Disposables;
+using System.Reactive.Linq;
 using System.Threading.Tasks;
 using Avalonia;
 using Avalonia.Controls;
@@ -21,7 +24,33 @@ public partial class ModListView : ReactiveUserControl<ModListViewModel>
     {
         InitializeComponent();
 
-        this.WhenActivated(d => d(ViewModel!.ShowFilterDialog.RegisterHandler(ShowEditFilterDialogAsync)));
+        this.WhenActivated(disposables =>
+        {
+            ViewModel!.ShowFilterDialog.RegisterHandler(ShowEditFilterDialogAsync)
+                .DisposeWith(disposables);
+
+            // In absence of CompositeCollection in avalonia, here's a rudimentary replacement
+            ViewModel!.ActiveFilters.Connect()
+                .Snapshots()
+                .Select(filters =>
+                {
+                    IEnumerable<object> result = filters;
+
+                    if (FilterItems.Resources.TryGetResource("NameFilterTextBox", out object? nameFilterBox))
+                    {
+                        result = result.Prepend(nameFilterBox!);
+                    }
+                    
+                    if (FilterItems.Resources.TryGetResource("AddFilterButton", out object? addFilterButton))
+                    {
+                        result = result.Append(addFilterButton!);
+                    }
+
+                    return result.ToReadOnlyList();
+                })
+                .Subscribe(objects => FilterItems.Items = objects)
+                .DisposeWith(disposables);
+        });
     }
 
     private void DataGrid_OnLoadingRow(object? sender, DataGridRowEventArgs e)
