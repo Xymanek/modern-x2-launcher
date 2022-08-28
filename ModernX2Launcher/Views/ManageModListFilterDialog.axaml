@@ -5,7 +5,7 @@
         mc:Ignorable="d"
         x:Class="ModernX2Launcher.Views.ManageModListFilterDialog"
         Title="Edit filter"
-        SizeToContent="Width" Height="400"
+        SizeToContent="Width" Height="400" WindowStartupLocation="CenterOwner"
         CanResize="False" Closing="Window_OnClosing">
     <!--
         I would prefer to hide the hide/maximize buttons, but that requires calling platform-specific APIs
@@ -100,7 +100,7 @@
                                     </Button>
 
                                     <Button Grid.Column="4">
-                                        Save
+                                        Apply
                                     </Button>
 
                                 </Grid>
@@ -120,7 +120,7 @@
                 </Border>
             </ControlTemplate>
         </TabControl.Template>
-        
+
         <TabControl.Styles>
             <Style Selector="TabItem">
                 <Setter Property="Foreground" Value="{DynamicResource ThemeForegroundColor}" />
@@ -130,7 +130,18 @@
         </TabControl.Styles>
 
         <TabItem Header="Enabled">
-            123
+            <StackPanel HorizontalAlignment="Center">
+                <TextBlock>123</TextBlock>
+                <RadioButton IsChecked="False"
+                             GroupName="First Group"
+                             Content="Include" />
+                <RadioButton IsChecked="True"
+                             GroupName="First Group"
+                             Content="Second Option" />
+                <RadioButton IsChecked="False"
+                             GroupName="First Group"
+                             Content="Third Option" />
+            </StackPanel>
         </TabItem>
 
         <TabItem Header="Source">
@@ -138,7 +149,15 @@
         </TabItem>
 
         <TabItem Header="Author">
-            789
+            <StackPanel>
+                <TextBlock HorizontalAlignment="Center">
+                    Select multiple (hold ctrl) for an OR condition
+                </TextBlock>
+
+                <ListBox Name="AuthorSelectionListBox"
+                         SelectionMode="Multiple">
+                </ListBox>
+            </StackPanel>
         </TabItem>
 
         <TabItem Header="Author">
